@@ -179,12 +179,15 @@ https://localhost:2780/swagger
 
 ## 📖 Documentation
 
-- **[RUN_BACKEND_NOW.txt](RUN_BACKEND_NOW.txt)** - Quick start guide
-- **[AUTO_DATABASE_SETUP_SUCCESS.md](AUTO_DATABASE_SETUP_SUCCESS.md)** - Database setup
-- **[PROJECT_STATUS_SUMMARY.md](PROJECT_STATUS_SUMMARY.md)** - Complete project status
-- **[BACKEND_REQUIREMENTS_CHECKLIST.md](BACKEND_REQUIREMENTS_CHECKLIST.md)** - Feature checklist
-- **[POSTMAN_TESTING_GUIDE.md](POSTMAN_TESTING_GUIDE.md)** - API testing guide
-- **[FLUTTER_INSTALLATION_GUIDE.md](FLUTTER_INSTALLATION_GUIDE.md)** - Flutter setup
+All detailed documentation is available in the `documentation/` folder:
+
+- **[RUN_BACKEND_NOW.txt](documentation/RUN_BACKEND_NOW.txt)** - Quick start guide
+- **[AUTO_DATABASE_SETUP_SUCCESS.md](documentation/AUTO_DATABASE_SETUP_SUCCESS.md)** - Database setup
+- **[PROJECT_STATUS_SUMMARY.md](documentation/PROJECT_STATUS_SUMMARY.md)** - Complete project status
+- **[BACKEND_REQUIREMENTS_CHECKLIST.md](documentation/BACKEND_REQUIREMENTS_CHECKLIST.md)** - Feature checklist
+- **[POSTMAN_TESTING_GUIDE.md](documentation/POSTMAN_TESTING_GUIDE.md)** - API testing guide
+- **[FLUTTER_INSTALLATION_GUIDE.md](documentation/FLUTTER_INSTALLATION_GUIDE.md)** - Flutter setup
+- **[GITHUB_UPLOAD_GUIDE.md](documentation/GITHUB_UPLOAD_GUIDE.md)** - GitHub upload instructions
 
 ## 🎯 Current Status
 
