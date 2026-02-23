@@ -12,6 +12,19 @@ class AuthInitial extends AuthState {}
 
 class AuthLoading extends AuthState {}
 
+class AuthSuccess extends AuthState {
+  final UserModel user;
+  final String token;
+
+  const AuthSuccess({
+    required this.user,
+    required this.token,
+  });
+
+  @override
+  List<Object?> get props => [user, token];
+}
+
 class AuthAuthenticated extends AuthState {
   final UserModel user;
   final String token;
@@ -28,6 +41,15 @@ class AuthAuthenticated extends AuthState {
 class AuthGuest extends AuthState {}
 
 class AuthUnauthenticated extends AuthState {}
+
+class AuthFailure extends AuthState {
+  final String error;
+
+  const AuthFailure({required this.error});
+
+  @override
+  List<Object?> get props => [error];
+}
 
 class AuthError extends AuthState {
   final String message;

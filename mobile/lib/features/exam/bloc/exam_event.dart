@@ -16,6 +16,11 @@ class LoadExams extends ExamEvent {
   List<Object?> get props => [language];
 }
 
+// Alias for backward compatibility
+class LoadExamsRequested extends LoadExams {
+  const LoadExamsRequested({super.language});
+}
+
 class LoadExamDetail extends ExamEvent {
   final String examId;
   final String language;
@@ -27,6 +32,14 @@ class LoadExamDetail extends ExamEvent {
 
   @override
   List<Object?> get props => [examId, language];
+}
+
+// Alias for backward compatibility
+class LoadExamDetailsRequested extends LoadExamDetail {
+  const LoadExamDetailsRequested({
+    required super.examId,
+    super.language,
+  });
 }
 
 class StartExam extends ExamEvent {
@@ -53,6 +66,11 @@ class LoadExamQuestions extends ExamEvent {
   List<Object?> get props => [attemptId];
 }
 
+// Alias for backward compatibility
+class LoadExamQuestionsRequested extends LoadExamQuestions {
+  const LoadExamQuestionsRequested({required super.attemptId});
+}
+
 class SubmitAnswer extends ExamEvent {
   final String attemptId;
   final String questionId;
@@ -64,7 +82,7 @@ class SubmitAnswer extends ExamEvent {
     required this.attemptId,
     required this.questionId,
     this.selectedOptionId,
-    required this.timeSpentSeconds,
+    this.timeSpentSeconds = 0,
     this.isMarkedForReview = false,
   });
 
@@ -78,6 +96,17 @@ class SubmitAnswer extends ExamEvent {
       ];
 }
 
+// Alias for backward compatibility
+class SubmitAnswerRequested extends SubmitAnswer {
+  const SubmitAnswerRequested({
+    required super.attemptId,
+    required super.questionId,
+    super.selectedOptionId,
+    super.timeSpentSeconds,
+    super.isMarkedForReview,
+  });
+}
+
 class SubmitExam extends ExamEvent {
   final String attemptId;
 
@@ -85,6 +114,11 @@ class SubmitExam extends ExamEvent {
 
   @override
   List<Object?> get props => [attemptId];
+}
+
+// Alias for backward compatibility
+class SubmitExamRequested extends SubmitExam {
+  const SubmitExamRequested({required super.attemptId});
 }
 
 class LoadExamResult extends ExamEvent {

@@ -1,3 +1,6 @@
+// Alias for backward compatibility
+typedef ResultModel = ExamResultModel;
+
 class ExamResultModel {
   final String attemptId;
   final String examName;

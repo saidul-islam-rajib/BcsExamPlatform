@@ -94,6 +94,7 @@ class ExamBloc extends Bloc<ExamEvent, ExamState> {
       emit(ExamQuestionsLoaded(
         questions: questions,
         attemptId: event.attemptId,
+        durationMinutes: 120, // Default 2 hours, should come from exam details
       ));
     } else {
       emit(ExamError(message: response.message ?? 'Failed to load questions'));

@@ -23,6 +23,19 @@ class ExamsLoaded extends ExamState {
   List<Object?> get props => [exams];
 }
 
+class ExamDetailsLoaded extends ExamState {
+  final ExamModel exam;
+  final List<SubjectDistribution> subjectDistributions;
+
+  const ExamDetailsLoaded({
+    required this.exam,
+    required this.subjectDistributions,
+  });
+
+  @override
+  List<Object?> get props => [exam, subjectDistributions];
+}
+
 class ExamDetailLoaded extends ExamState {
   final ExamDetailModel exam;
 
@@ -48,14 +61,16 @@ class ExamStarted extends ExamState {
 class ExamQuestionsLoaded extends ExamState {
   final List<QuestionModel> questions;
   final String attemptId;
+  final int durationMinutes;
 
   const ExamQuestionsLoaded({
     required this.questions,
     required this.attemptId,
+    required this.durationMinutes,
   });
 
   @override
-  List<Object?> get props => [questions, attemptId];
+  List<Object?> get props => [questions, attemptId, durationMinutes];
 }
 
 class AnswerSubmitted extends ExamState {
@@ -76,6 +91,15 @@ class ExamSubmitted extends ExamState {
   List<Object?> get props => [result];
 }
 
+class ResultLoaded extends ExamState {
+  final ResultModel result;
+
+  const ResultLoaded({required this.result});
+
+  @override
+  List<Object?> get props => [result];
+}
+
 class ExamResultLoaded extends ExamState {
   final ExamResultModel result;
 
@@ -83,6 +107,15 @@ class ExamResultLoaded extends ExamState {
 
   @override
   List<Object?> get props => [result];
+}
+
+class ReviewLoaded extends ExamState {
+  final List<ReviewAnswer> answers;
+
+  const ReviewLoaded({required this.answers});
+
+  @override
+  List<Object?> get props => [answers];
 }
 
 class QuestionReviewLoaded extends ExamState {
@@ -94,6 +127,15 @@ class QuestionReviewLoaded extends ExamState {
   List<Object?> get props => [questions];
 }
 
+class ExamFailure extends ExamState {
+  final String error;
+
+  const ExamFailure({required this.error});
+
+  @override
+  List<Object?> get props => [error];
+}
+
 class ExamError extends ExamState {
   final String message;
 
@@ -101,4 +143,35 @@ class ExamError extends ExamState {
 
   @override
   List<Object?> get props => [message];
+}
+
+// Helper classes for state data
+class SubjectDistribution {
+  final String subjectNameEnglish;
+  final String subjectNameBangla;
+  final int totalQuestions;
+  final int easyQuestions;
+  final int intermediateQuestions;
+  final int hardQuestions;
+
+  SubjectDistribution({
+    required this.subjectNameEnglish,
+    required this.subjectNameBangla,
+    required this.totalQuestions,
+    required this.easyQuestions,
+    required this.intermediateQuestions,
+    required this.hardQuestions,
+  });
+}
+
+class ReviewAnswer {
+  final QuestionModel question;
+  final String? selectedOptionId;
+  final bool isCorrect;
+
+  ReviewAnswer({
+    required this.question,
+    this.selectedOptionId,
+    required this.isCorrect,
+  });
 }
