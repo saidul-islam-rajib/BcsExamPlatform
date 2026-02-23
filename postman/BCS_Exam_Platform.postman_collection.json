@@ -1,0 +1,616 @@
+{
+    "info": {
+        "_postman_id": "bcs-exam-platform-001",
+        "name": "BCS Exam Platform API",
+        "description": "Complete API collection for BCS Preliminary Exam Platform with sample data",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Authentication",
+            "item": [
+                {
+                    "name": "Register User",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.environment.set(\"auth_token\", jsonData.token);",
+                                    "    pm.environment.set(\"user_id\", jsonData.user.userId);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"student@example.com\",\n  \"password\": \"Student@123\",\n  \"fullName\": \"John Doe\",\n  \"phoneNumber\": \"01712345678\",\n  \"preferredLanguage\": \"Bangla\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/auth/register",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "register"
+                            ]
+                        },
+                        "description": "Register a new user account"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Login User",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.environment.set(\"auth_token\", jsonData.token);",
+                                    "    pm.environment.set(\"user_id\", jsonData.user.userId);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"student@example.com\",\n  \"password\": \"Student@123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/auth/login",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "login"
+                            ]
+                        },
+                        "description": "Login with existing user credentials"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Login Admin",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.environment.set(\"auth_token\", jsonData.token);",
+                                    "    pm.environment.set(\"user_id\", jsonData.user.userId);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"admin@bcsexam.com\",\n  \"password\": \"Admin@123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/auth/login",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "login"
+                            ]
+                        },
+                        "description": "Login as admin (default credentials)"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Exams",
+            "item": [
+                {
+                    "name": "Get Exam List (Bangla)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/exam/list?language=Bangla",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "exam",
+                                "list"
+                            ],
+                            "query": [
+                                {
+                                    "key": "language",
+                                    "value": "Bangla"
+                                }
+                            ]
+                        },
+                        "description": "Get all published exams in Bangla"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Exam List (English)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/exam/list?language=English",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "exam",
+                                "list"
+                            ],
+                            "query": [
+                                {
+                                    "key": "language",
+                                    "value": "English"
+                                }
+                            ]
+                        },
+                        "description": "Get all published exams in English"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Exam Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/exam/{{exam_id}}?language=Bangla",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "exam",
+                                "{{exam_id}}"
+                            ],
+                            "query": [
+                                {
+                                    "key": "language",
+                                    "value": "Bangla"
+                                }
+                            ]
+                        },
+                        "description": "Get detailed information about a specific exam"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Start Exam (Registered User)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.environment.set(\"attempt_id\", jsonData.attemptId);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"examId\": \"{{exam_id}}\",\n  \"selectedLanguage\": \"Bangla\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/exam/start",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "exam",
+                                "start"
+                            ]
+                        },
+                        "description": "Start an exam as a registered user"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Start Exam (Guest User)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.environment.set(\"attempt_id\", jsonData.attemptId);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"examId\": \"{{exam_id}}\",\n  \"selectedLanguage\": \"Bangla\",\n  \"guestEmail\": \"guest@example.com\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/exam/start",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "exam",
+                                "start"
+                            ]
+                        },
+                        "description": "Start an exam as a guest user (requires email)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Exam Questions",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/exam/questions/{{attempt_id}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "exam",
+                                "questions",
+                                "{{attempt_id}}"
+                            ]
+                        },
+                        "description": "Get all questions for an exam attempt (200 questions)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Submit Answer",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"attemptId\": \"{{attempt_id}}\",\n  \"questionId\": \"{{question_id}}\",\n  \"selectedOptionId\": \"{{option_id}}\",\n  \"timeSpentSeconds\": 45,\n  \"isMarkedForReview\": false\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/exam/submit-answer",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "exam",
+                                "submit-answer"
+                            ]
+                        },
+                        "description": "Submit answer for a single question"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Submit Answer (Marked for Review)",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"attemptId\": \"{{attempt_id}}\",\n  \"questionId\": \"{{question_id}}\",\n  \"selectedOptionId\": \"{{option_id}}\",\n  \"timeSpentSeconds\": 60,\n  \"isMarkedForReview\": true\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/exam/submit-answer",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "exam",
+                                "submit-answer"
+                            ]
+                        },
+                        "description": "Submit answer and mark question for review"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Submit Exam",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    console.log(\"Exam Result:\");",
+                                    "    console.log(\"Total Marks: \" + jsonData.totalMarksObtained + \"/\" + jsonData.totalMarks);",
+                                    "    console.log(\"Rank: \" + jsonData.rank);",
+                                    "    console.log(\"Badge: \" + jsonData.badgeName);",
+                                    "    console.log(\"Passed: \" + jsonData.isPassed);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"attemptId\": \"{{attempt_id}}\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/exam/submit",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "exam",
+                                "submit"
+                            ]
+                        },
+                        "description": "Submit complete exam and get results"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Results",
+            "item": [
+                {
+                    "name": "Get Exam Result",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/exam/result/{{attempt_id}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "exam",
+                                "result",
+                                "{{attempt_id}}"
+                            ]
+                        },
+                        "description": "Get detailed exam result with marks, rank, and badge"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Question Review",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{auth_token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/exam/review/{{attempt_id}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "exam",
+                                "review",
+                                "{{attempt_id}}"
+                            ]
+                        },
+                        "description": "Get question-wise review with correct answers and explanations"
+                    },
+                    "response": []
+                }
+            ]
+        }
+    ],
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    ""
+                ]
+            }
+        },
+        {
+            "listen": "test",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    ""
+                ]
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "https://localhost:5001",
+            "type": "string"
+        },
+        {
+            "key": "auth_token",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "user_id",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "exam_id",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "attempt_id",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "question_id",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "option_id",
+            "value": "",
+            "type": "string"
+        }
+    ]
+}

@@ -1,0 +1,193 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    🚀 RUN YOUR BACKEND NOW - SIMPLE GUIDE                    ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                         STEP 1: OPEN TERMINAL                                │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+   Open PowerShell or Command Prompt in your project folder:
+   C:\Users\User\Desktop\BCS
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                    STEP 2: RUN THESE TWO COMMANDS                            │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+   Command 1: Navigate to API folder
+   ┌────────────────────────────────────────────────────────────────────────┐
+   │  cd backend\BcsExamPlatform.API                                        │
+   └────────────────────────────────────────────────────────────────────────┘
+
+   Command 2: Run the backend
+   ┌────────────────────────────────────────────────────────────────────────┐
+   │  dotnet run                                                            │
+   └────────────────────────────────────────────────────────────────────────┘
+
+   That's it! Just 2 commands!
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                      STEP 3: WAIT FOR SUCCESS MESSAGE                        │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+   You will see:
+   ✅ "Checking database..."
+   ✅ "Database is up to date."
+   ✅ "Seeding database..."
+   ✅ "Database initialization completed successfully."
+   ✅ "Now listening on: https://localhost:2780"
+   ✅ "Application started. Press Ctrl+C to shut down."
+
+   This means:
+   ✅ Database was created automatically
+   ✅ All tables were created
+   ✅ Initial data was seeded
+   ✅ API is running
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                       STEP 4: OPEN YOUR BROWSER                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+   Open this URL in your browser:
+   ┌────────────────────────────────────────────────────────────────────────┐
+   │  https://localhost:2780/swagger                                        │
+   └────────────────────────────────────────────────────────────────────────┘
+
+   You will see Swagger UI with all API endpoints!
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                         STEP 5: TEST AN API                                  │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+   In Swagger UI:
+
+   1. Find "POST /api/auth/register" endpoint
+   2. Click "Try it out"
+   3. Enter this sample data:
+      {
+        "email": "test@example.com",
+        "password": "Test@123",
+        "fullName": "Test User",
+        "phoneNumber": "01712345678",
+        "preferredLanguage": "English"
+      }
+   4. Click "Execute"
+   5. You should see: "User registered successfully"
+
+   Congratulations! Your API is working! 🎉
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                         STEP 6: LOGIN                                        │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+   In Swagger UI:
+
+   1. Find "POST /api/auth/login" endpoint
+   2. Click "Try it out"
+   3. Enter:
+      {
+        "email": "admin@bcsexam.com",
+        "password": "Admin@123"
+      }
+   4. Click "Execute"
+   5. Copy the "token" from response
+   6. Click "Authorize" button at top
+   7. Enter: Bearer [paste-token-here]
+   8. Click "Authorize"
+
+   Now you can test all protected endpoints!
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                      STEP 7: STOP THE BACKEND                                │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+   When you want to stop:
+   ┌────────────────────────────────────────────────────────────────────────┐
+   │  Press Ctrl+C in the terminal                                          │
+   └────────────────────────────────────────────────────────────────────────┘
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                           📋 QUICK COPY-PASTE                                ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+   Copy and paste these commands one by one:
+
+   cd backend\BcsExamPlatform.API
+   dotnet run
+
+   Then open browser:
+   https://localhost:2780/swagger
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                           🔍 VERIFY DATABASE                                 ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+   To verify database was created:
+
+   1. Open SQL Server Management Studio
+   2. Connect to: RAJIB\MSSQLSERVER01
+   3. Look for database: BcsExamPlatform
+   4. Expand Tables - you should see 15+ tables
+   5. Right-click on "Subjects" → Select Top 1000 Rows
+   6. You should see 8 subjects (Bangla, English, Math, etc.)
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                           ❓ TROUBLESHOOTING                                 ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+   Problem: "dotnet: command not found"
+   Solution: Install .NET 8.0 SDK from https://dotnet.microsoft.com
+
+   Problem: "Cannot connect to SQL Server"
+   Solution: 
+   - Check SQL Server service is running
+   - Open Services (services.msc)
+   - Find "SQL Server (MSSQLSERVER01)"
+   - Make sure it's running
+
+   Problem: "Port 2780 already in use"
+   Solution:
+   - Kill the process using that port
+   - Or change port in Properties/launchSettings.json
+
+   Problem: "Database error"
+   Solution:
+   - Check connection string in appsettings.json
+   - Make sure Windows Authentication works
+   - Try connecting via SQL Server Management Studio first
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                           📚 MORE HELP                                       ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+   Read these files for more information:
+
+   📖 QUICK_REFERENCE.md - Quick commands and info
+   📖 AUTO_DATABASE_SETUP_SUCCESS.md - Detailed setup guide
+   📖 PROJECT_STATUS_SUMMARY.md - Complete project status
+   📖 WHATS_WORKING_NOW.txt - What's working right now
+   📖 POSTMAN_TESTING_GUIDE.md - How to test with Postman
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                           🎯 WHAT'S NEXT?                                    ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+   After backend is running:
+
+   1. ✅ Test all APIs with Swagger
+   2. ✅ Import Postman collection and test
+   3. ✅ View database in SQL Server Management Studio
+   4. ⏳ Install Flutter SDK (read FLUTTER_INSTALLATION_GUIDE.md)
+   5. ⏳ Test mobile app
+   6. ⏳ Add sample exam data (use SQL script)
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                           🎉 YOU'RE READY!                                   ║
+║                                                                              ║
+║  Your backend is fully configured and ready to run.                         ║
+║  Database will be created automatically on first run.                       ║
+║  All you need to do is run: dotnet run                                      ║
+║                                                                              ║
+║  Good luck with your BCS Exam Platform! 🚀                                  ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Last Updated: February 23, 2026
