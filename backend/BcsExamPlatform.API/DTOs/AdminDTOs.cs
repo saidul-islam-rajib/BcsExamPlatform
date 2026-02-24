@@ -1,0 +1,140 @@
+namespace BcsExamPlatform.API.DTOs;
+
+// Question DTOs
+public class CreateQuestionDTO
+{
+    public Guid SubjectId { get; set; }
+    public Guid TopicId { get; set; }
+    public string QuestionTextBangla { get; set; } = string.Empty;
+    public string QuestionTextEnglish { get; set; } = string.Empty;
+    public string? QuestionImageUrl { get; set; }
+    public bool HasMathContent { get; set; }
+    public string DifficultyLevel { get; set; } = "Easy";
+    public decimal Marks { get; set; } = 1.00m;
+    public string SourceType { get; set; } = string.Empty;
+    public int? SourceYear { get; set; }
+    public string? SourceReference { get; set; }
+    public bool IsAIGenerated { get; set; }
+    public bool IsUnique { get; set; }
+    public bool IsApproved { get; set; }
+}
+
+public class UpdateQuestionDTO
+{
+    public Guid SubjectId { get; set; }
+    public Guid TopicId { get; set; }
+    public string QuestionTextBangla { get; set; } = string.Empty;
+    public string QuestionTextEnglish { get; set; } = string.Empty;
+    public string? QuestionImageUrl { get; set; }
+    public bool HasMathContent { get; set; }
+    public string DifficultyLevel { get; set; } = "Easy";
+    public decimal Marks { get; set; } = 1.00m;
+    public string SourceType { get; set; } = string.Empty;
+    public int? SourceYear { get; set; }
+    public string? SourceReference { get; set; }
+    public bool IsApproved { get; set; }
+}
+
+public class CreateQuestionOptionDTO
+{
+    public string OptionTextBangla { get; set; } = string.Empty;
+    public string OptionTextEnglish { get; set; } = string.Empty;
+    public bool IsCorrect { get; set; }
+}
+
+public class CreateExplanationDTO
+{
+    public string ExplanationBangla { get; set; } = string.Empty;
+    public string ExplanationEnglish { get; set; } = string.Empty;
+}
+
+public class QuestionResponseDTO
+{
+    public Guid QuestionId { get; set; }
+    public string Message { get; set; } = string.Empty;
+}
+
+public class QuestionListDTO
+{
+    public Guid QuestionId { get; set; }
+    public string QuestionTextEnglish { get; set; } = string.Empty;
+    public string SubjectName { get; set; } = string.Empty;
+    public string TopicName { get; set; } = string.Empty;
+    public string DifficultyLevel { get; set; } = string.Empty;
+    public bool IsApproved { get; set; }
+    public int OptionsCount { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
+
+public class QuestionDetailDTO
+{
+    public Guid QuestionId { get; set; }
+    public Guid SubjectId { get; set; }
+    public Guid TopicId { get; set; }
+    public string QuestionTextBangla { get; set; } = string.Empty;
+    public string QuestionTextEnglish { get; set; } = string.Empty;
+    public string? QuestionImageUrl { get; set; }
+    public bool HasMathContent { get; set; }
+    public string DifficultyLevel { get; set; } = string.Empty;
+    public decimal Marks { get; set; }
+    public string SourceType { get; set; } = string.Empty;
+    public int? SourceYear { get; set; }
+    public string? SourceReference { get; set; }
+    public bool IsAIGenerated { get; set; }
+    public bool IsApproved { get; set; }
+    public List<QuestionOptionDetailDTO> Options { get; set; } = new();
+    public string ExplanationBangla { get; set; } = string.Empty;
+    public string ExplanationEnglish { get; set; } = string.Empty;
+}
+
+public class QuestionOptionDetailDTO
+{
+    public Guid OptionId { get; set; }
+    public string OptionTextBangla { get; set; } = string.Empty;
+    public string OptionTextEnglish { get; set; } = string.Empty;
+    public int OptionOrder { get; set; }
+    public bool IsCorrect { get; set; }
+}
+
+// Exam DTOs
+public class CreateExamDTO
+{
+    public string ExamNameBangla { get; set; } = string.Empty;
+    public string ExamNameEnglish { get; set; } = string.Empty;
+    public DateTime ExamDate { get; set; }
+    public int TotalQuestions { get; set; } = 200;
+    public int DurationMinutes { get; set; } = 120;
+    public decimal TotalMarks { get; set; } = 200;
+    public string LanguageMode { get; set; } = "Bilingual";
+    public bool IsPaid { get; set; }
+    public decimal ExamFee { get; set; }
+    public bool AllowGuestUsers { get; set; } = true;
+}
+
+public class CreateSubjectDistributionDTO
+{
+    public Guid SubjectId { get; set; }
+    public int TotalQuestions { get; set; }
+    public int EasyQuestions { get; set; }
+    public int IntermediateQuestions { get; set; }
+    public int HardQuestions { get; set; }
+}
+
+public class ExamResponseDTO
+{
+    public Guid ExamId { get; set; }
+    public string Message { get; set; } = string.Empty;
+}
+
+public class ExamListAdminDTO
+{
+    public Guid ExamId { get; set; }
+    public string ExamNameEnglish { get; set; } = string.Empty;
+    public DateTime ExamDate { get; set; }
+    public int TotalQuestions { get; set; }
+    public int DurationMinutes { get; set; }
+    public bool IsPublished { get; set; }
+    public bool IsPaid { get; set; }
+    public decimal ExamFee { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
