@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questions Management - BCS Exam Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .questions-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .questions-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .questions-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .questions-table tr {
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .questions-table tbody tr:hover {
+            background: #f5f5f5;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-easy {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-intermediate {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-hard {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            overflow: auto;
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 900px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 15px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #667eea;
+        }
+
+        .modal-close {
+            font-size: 32px;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .detail-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .detail-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 18px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+        }
+
+        .detail-section p {
+            margin: 10px 0;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        .detail-section .label {
+            font-weight: 600;
+            color: #666;
+            display: inline-block;
+            min-width: 120px;
+        }
+
+        .option-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .option-list li {
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+            border-radius: 6px;
+            border-left: 4px solid #ccc;
+            font-size: 15px;
+        }
+
+        .option-list li.correct {
+            background: #d4edda;
+            border-left-color: #28a745;
+            font-weight: 600;
+        }
+
+        .option-list li.correct::before {
+            content: '✓ ';
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 36px;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .filters select {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 Questions Management</h1>
+            <p>View, edit, and manage all exam questions</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <h3 id="totalQuestions">0</h3>
+                <p>Total Questions</p>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <h3 id="approvedQuestions">0</h3>
+                <p>Approved Questions</p>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <h3 id="pendingQuestions">0</h3>
+                <p>Pending Approval</p>
+            </div>
+        </div>
+
+        <div class="filters">
+            <select id="subjectFilter" onchange="loadQuestions()">
+                <option value="">All Subjects</option>
+            </select>
+            <select id="difficultyFilter" onchange="loadQuestions()">
+                <option value="">All Difficulties</option>
+                <option value="Easy">Easy</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Hard">Hard</option>
+            </select>
+            <select id="statusFilter" onchange="loadQuestions()">
+                <option value="">All Status</option>
+                <option value="true">Approved</option>
+                <option value="false">Pending</option>
+            </select>
+            <button class="btn" onclick="loadQuestions()">Refresh</button>
+            <button class="btn" onclick="window.location.href='index.html'">Back to Admin</button>
+        </div>
+
+        <table class="questions-table">
+            <thead>
+                <tr>
+                    <th style="width: 50px;">#</th>
+                    <th>Question</th>
+                    <th style="width: 150px;">Subject</th>
+                    <th style="width: 120px;">Difficulty</th>
+                    <th style="width: 100px;">Status</th>
+                    <th style="width: 100px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="questionsTableBody">
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 40px;">Loading questions...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Question Detail Modal -->
+    <div id="questionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Question Details</h2>
+                <span class="modal-close" onclick="closeModal()">&times;</span>
+            </div>
+            <div id="questionDetails"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:2781/api';
+        let allQuestions = [];
+
+        window.onload = async () => {
+            await loadSubjects();
+            await loadQuestions();
+        };
+
+        async function loadSubjects() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/subjects`);
+                const subjects = await response.json();
+
+                const select = document.getElementById('subjectFilter');
+                subjects.forEach(subject => {
+                    const option = document.createElement('option');
+                    option.value = subject.subjectId;
+                    option.textContent = subject.subjectNameEnglish;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading subjects:', error);
+            }
+        }
+
+        async function loadQuestions() {
+            try {
+                const subjectId = document.getElementById('subjectFilter').value;
+                const difficulty = document.getElementById('difficultyFilter').value;
+                const isApproved = document.getElementById('statusFilter').value;
+
+                let url = `${API_BASE}/admin/questions?pageSize=200`;
+                if (subjectId) url += `&subjectId=${subjectId}`;
+                if (difficulty) url += `&difficulty=${difficulty}`;
+                if (isApproved) url += `&isApproved=${isApproved}`;
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                allQuestions = data.questions || [];
+
+                // Update stats
+                document.getElementById('totalQuestions').textContent = data.totalCount || 0;
+                document.getElementById('approvedQuestions').textContent = allQuestions.filter(q => q.isApproved).length;
+                document.getElementById('pendingQuestions').textContent = allQuestions.filter(q => !q.isApproved).length;
+
+                // Render table
+                const tbody = document.getElementById('questionsTableBody');
+                tbody.innerHTML = '';
+
+                if (allQuestions.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">No questions found</td></tr>';
+                    return;
+                }
+
+                allQuestions.forEach((q, index) => {
+                    const row = document.createElement('tr');
+                    row.onclick = () => showQuestionDetails(q.questionId);
+
+                    const difficultyClass = q.difficultyLevel.toLowerCase();
+                    const statusClass = q.isApproved ? 'approved' : 'pending';
+
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${q.questionTextEnglish.substring(0, 80)}${q.questionTextEnglish.length > 80 ? '...' : ''}</td>
+                        <td>${q.subjectName}</td>
+                        <td><span class="badge badge-${difficultyClass}">${q.difficultyLevel}</span></td>
+                        <td><span class="badge badge-${statusClass}">${q.isApproved ? 'Approved' : 'Pending'}</span></td>
+                        <td>
+                            <button class="btn btn-danger" onclick="event.stopPropagation(); deleteQuestion('${q.questionId}')" style="padding: 6px 12px; font-size: 12px;">Delete</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading questions:', error);
+            }
+        }
+
+        async function showQuestionDetails(questionId) {
+            try {
+                const response = await fetch(`${API_BASE}/admin/questions/${questionId}`);
+                const question = await response.json();
+
+                const detailsDiv = document.getElementById('questionDetails');
+                detailsDiv.innerHTML = `
+                    <div class="detail-section">
+                        <h3>Question Information</h3>
+                        <p><span class="label">Subject:</span> ${question.subjectName || 'N/A'}</p>
+                        <p><span class="label">Topic:</span> ${question.topicName || 'N/A'}</p>
+                        <p><span class="label">Difficulty:</span> <span class="badge badge-${question.difficultyLevel.toLowerCase()}">${question.difficultyLevel}</span></p>
+                        <p><span class="label">Marks:</span> ${question.marks}</p>
+                        <p><span class="label">Status:</span> <span class="badge badge-${question.isApproved ? 'approved' : 'pending'}">${question.isApproved ? 'Approved' : 'Pending'}</span></p>
+                        <p><span class="label">Source:</span> ${question.sourceType || 'N/A'}</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>Question Text (English)</h3>
+                        <p>${question.questionTextEnglish}</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>Question Text (Bangla)</h3>
+                        <p>${question.questionTextBangla}</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>Options</h3>
+                        <ul class="option-list">
+                            ${question.options.map(opt => `
+                                <li class="${opt.isCorrect ? 'correct' : ''}">
+                                    <strong>Option ${opt.optionOrder}:</strong><br>
+                                    English: ${opt.optionTextEnglish}<br>
+                                    Bangla: ${opt.optionTextBangla}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>Explanation (English)</h3>
+                        <p>${question.explanationEnglish || 'No explanation provided'}</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>Explanation (Bangla)</h3>
+                        <p>${question.explanationBangla || 'No explanation provided'}</p>
+                    </div>
+                `;
+
+                document.getElementById('questionModal').classList.add('active');
+            } catch (error) {
+                console.error('Error loading question details:', error);
+                alert('Error loading question details');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('questionModal').classList.remove('active');
+        }
+
+        async function deleteQuestion(questionId) {
+            if (!confirm('Are you sure you want to delete this question?')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/questions/${questionId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('Question deleted successfully');
+                    await loadQuestions();
+                } else {
+                    alert('Error deleting question');
+                }
+            } catch (error) {
+                console.error('Error deleting question:', error);
+                alert('Error deleting question');
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function (event) {
+            const modal = document.getElementById('questionModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+
+</html>
