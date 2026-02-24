@@ -45,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, authState) {
-          final userName = authState is AuthSuccess
+          final userName = authState is AuthAuthenticated
               ? authState.user.fullName
               : 'Guest';
 

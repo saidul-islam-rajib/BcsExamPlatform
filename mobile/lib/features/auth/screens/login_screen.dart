@@ -41,12 +41,12 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is AuthSuccess) {
+          if (state is AuthAuthenticated) {
             context.go('/home');
-          } else if (state is AuthFailure) {
+          } else if (state is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(state.error),
+                content: Text(state.message),
                 backgroundColor: Colors.red,
               ),
             );
