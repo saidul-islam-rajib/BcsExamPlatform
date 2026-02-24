@@ -90,7 +90,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// Disable HTTPS redirection in development for Flutter web
+// app.UseHttpsRedirection();
 app.UseCors("AllowFlutterApp");
 app.UseAuthentication();
 app.UseAuthorization();
