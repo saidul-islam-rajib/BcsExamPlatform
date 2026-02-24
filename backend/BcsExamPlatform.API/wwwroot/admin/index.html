@@ -288,161 +288,64 @@
 
         <!-- Questions Tab -->
         <div id="questions" class="tab-content">
-            <h2 style="margin-bottom: 20px;">Create New Question</h2>
-            <div id="questionMessage"></div>
-
-            <form id="questionForm" onsubmit="createQuestion(event)">
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label>Subject *</label>
-                        <select id="subjectId" required>
-                            <option value="">Select Subject</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Topic *</label>
-                        <select id="topicId" required>
-                            <option value="">Select Topic</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label>Difficulty Level *</label>
-                        <select id="difficultyLevel" required>
-                            <option value="Easy">Easy</option>
-                            <option value="Intermediate">Intermediate</option>
-                            <option value="Hard">Hard</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Marks *</label>
-                        <input type="number" id="marks" value="1" step="0.01" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Question Text (Bangla) *</label>
-                    <textarea id="questionTextBangla" required></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Question Text (English) *</label>
-                    <textarea id="questionTextEnglish" required></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Options (4 required) *</label>
-                    <div class="options-container">
-                        <div class="option-item">
-                            <input type="text" id="option1Bangla" placeholder="Option 1 (Bangla)" required>
-                            <input type="text" id="option1English" placeholder="Option 1 (English)" required>
-                            <label><input type="radio" name="correctOption" value="0" required> Correct</label>
-                        </div>
-                        <div class="option-item">
-                            <input type="text" id="option2Bangla" placeholder="Option 2 (Bangla)" required>
-                            <input type="text" id="option2English" placeholder="Option 2 (English)" required>
-                            <label><input type="radio" name="correctOption" value="1"> Correct</label>
-                        </div>
-                        <div class="option-item">
-                            <input type="text" id="option3Bangla" placeholder="Option 3 (Bangla)" required>
-                            <input type="text" id="option3English" placeholder="Option 3 (English)" required>
-                            <label><input type="radio" name="correctOption" value="2"> Correct</label>
-                        </div>
-                        <div class="option-item">
-                            <input type="text" id="option4Bangla" placeholder="Option 4 (Bangla)" required>
-                            <input type="text" id="option4English" placeholder="Option 4 (English)" required>
-                            <label><input type="radio" name="correctOption" value="3"> Correct</label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Explanation (Bangla) *</label>
-                    <textarea id="explanationBangla" required></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Explanation (English) *</label>
-                    <textarea id="explanationEnglish" required></textarea>
-                </div>
-
-                <button type="submit" class="btn">Create Question</button>
-            </form>
-
-            <hr style="margin: 40px 0; border: none; border-top: 2px solid #e0e0e0;">
-
             <h2 style="margin-bottom: 20px;">All Questions</h2>
-            <button class="btn btn-secondary" onclick="loadQuestions()">Load Questions</button>
-            <div id="questionsList" class="question-list"></div>
+            <p style="color: #666; margin-bottom: 20px;">View and manage all exam questions. Click on any question to
+                see full details.</p>
+
+            <div style="margin-bottom: 20px;">
+                <button class="btn" onclick="window.location.href='questions.html'">View All Questions
+                    (Detailed)</button>
+                <button class="btn btn-secondary" onclick="loadQuestionsPreview()">Refresh</button>
+            </div>
+
+            <table class="questions-table"
+                style="width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden;">
+                <thead>
+                    <tr style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        <th style="padding: 15px; text-align: left;">#</th>
+                        <th style="padding: 15px; text-align: left;">Question</th>
+                        <th style="padding: 15px; text-align: left;">Subject</th>
+                        <th style="padding: 15px; text-align: left;">Difficulty</th>
+                        <th style="padding: 15px; text-align: left;">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="questionsPreviewBody">
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px;">Loading questions...</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
         <!-- Exams Tab -->
         <div id="exams" class="tab-content">
-            <h2 style="margin-bottom: 20px;">Create New Exam</h2>
-            <div id="examMessage"></div>
-
-            <form id="examForm" onsubmit="createExam(event)">
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label>Exam Name (Bangla) *</label>
-                        <input type="text" id="examNameBangla" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Exam Name (English) *</label>
-                        <input type="text" id="examNameEnglish" required>
-                    </div>
-                </div>
-
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label>Exam Date *</label>
-                        <input type="datetime-local" id="examDate" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Duration (Minutes) *</label>
-                        <input type="number" id="durationMinutes" value="120" required>
-                    </div>
-                </div>
-
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label>Total Questions *</label>
-                        <input type="number" id="totalQuestions" value="200" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Total Marks *</label>
-                        <input type="number" id="totalMarks" value="200" required>
-                    </div>
-                </div>
-
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label>Language Mode *</label>
-                        <select id="languageMode" required>
-                            <option value="Bilingual">Bilingual</option>
-                            <option value="Bangla">Bangla Only</option>
-                            <option value="English">English Only</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>
-                            <input type="checkbox" id="allowGuestUsers" checked
-                                style="width: auto; margin-right: 10px;">
-                            Allow Guest Users
-                        </label>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn">Create Exam</button>
-            </form>
-
-            <hr style="margin: 40px 0; border: none; border-top: 2px solid #e0e0e0;">
-
             <h2 style="margin-bottom: 20px;">All Exams</h2>
-            <button class="btn btn-secondary" onclick="loadExams()">Load Exams</button>
-            <div id="examsList" class="question-list"></div>
+            <p style="color: #666; margin-bottom: 20px;">View and manage all exams. Click on any exam to see full
+                details including questions and student attempts.</p>
+
+            <div style="margin-bottom: 20px;">
+                <button class="btn" onclick="window.location.href='exams.html'">View All Exams (Detailed)</button>
+                <button class="btn btn-secondary" onclick="loadExamsPreview()">Refresh</button>
+            </div>
+
+            <table class="exams-table"
+                style="width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden;">
+                <thead>
+                    <tr style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        <th style="padding: 15px; text-align: left;">#</th>
+                        <th style="padding: 15px; text-align: left;">Exam Name</th>
+                        <th style="padding: 15px; text-align: left;">Date</th>
+                        <th style="padding: 15px; text-align: left;">Questions</th>
+                        <th style="padding: 15px; text-align: left;">Duration</th>
+                        <th style="padding: 15px; text-align: left;">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="examsPreviewBody">
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 40px;">Loading exams...</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
         <!-- Quick Setup Tab -->
@@ -465,6 +368,8 @@
         window.onload = async () => {
             await loadSubjects();
             await loadDashboard();
+            await loadQuestionsPreview();
+            await loadExamsPreview();
         };
 
         async function loadSubjects() {
@@ -527,6 +432,98 @@
                 document.getElementById('publishedExams').textContent = examsData.filter(e => e.isPublished).length || 0;
             } catch (error) {
                 console.error('Error loading dashboard:', error);
+            }
+        }
+
+        async function loadQuestionsPreview() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/questions?pageSize=50`);
+                const data = await response.json();
+
+                const tbody = document.getElementById('questionsPreviewBody');
+                tbody.innerHTML = '';
+
+                if (data.questions && data.questions.length > 0) {
+                    data.questions.forEach((q, index) => {
+                        const row = document.createElement('tr');
+                        row.style.cursor = 'pointer';
+                        row.style.transition = 'background 0.2s';
+                        row.onmouseover = () => row.style.background = '#f5f5f5';
+                        row.onmouseout = () => row.style.background = 'white';
+                        row.onclick = () => window.location.href = 'questions.html';
+
+                        const statusBadge = q.isApproved
+                            ? '<span style="background: #4caf50; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">Approved</span>'
+                            : '<span style="background: #ff9800; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">Pending</span>';
+
+                        const difficultyColor = q.difficultyLevel === 'Easy' ? '#4caf50' :
+                            q.difficultyLevel === 'Intermediate' ? '#ff9800' : '#f44336';
+
+                        row.innerHTML = `
+                            <td style="padding: 15px; border-bottom: 1px solid #e0e0e0;">${index + 1}</td>
+                            <td style="padding: 15px; border-bottom: 1px solid #e0e0e0; max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${q.questionTextEnglish}</td>
+                            <td style="padding: 15px; border-bottom: 1px solid #e0e0e0;">${q.subjectName || 'N/A'}</td>
+                            <td style="padding: 15px; border-bottom: 1px solid #e0e0e0;">
+                                <span style="color: ${difficultyColor}; font-weight: 600;">${q.difficultyLevel}</span>
+                            </td>
+                            <td style="padding: 15px; border-bottom: 1px solid #e0e0e0;">${statusBadge}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px; color: #999;">No questions found. Use Quick Setup to seed sample data.</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading questions preview:', error);
+                document.getElementById('questionsPreviewBody').innerHTML =
+                    '<tr><td colspan="5" style="text-align: center; padding: 40px; color: #f44336;">Error loading questions</td></tr>';
+            }
+        }
+
+        async function loadExamsPreview() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/exams`);
+                const exams = await response.json();
+
+                const tbody = document.getElementById('examsPreviewBody');
+                tbody.innerHTML = '';
+
+                if (exams && exams.length > 0) {
+                    exams.forEach((exam, index) => {
+                        const row = document.createElement('tr');
+                        row.style.cursor = 'pointer';
+                        row.style.transition = 'background 0.2s';
+                        row.onmouseover = () => row.style.background = '#f5f5f5';
+                        row.onmouseout = () => row.style.background = 'white';
+                        row.onclick = () => window.location.href = 'exams.html';
+
+                        const statusBadge = exam.isPublished
+                            ? '<span style="background: #4caf50; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">Published</span>'
+                            : '<span style="background: #ff9800; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">Draft</span>';
+
+                        const examDate = new Date(exam.examDate).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                        });
+
+                        row.innerHTML = `
+                            <td style="padding: 15px; border-bottom: 1px solid #e0e0e0;">${index + 1}</td>
+                            <td style="padding: 15px; border-bottom: 1px solid #e0e0e0; font-weight: 600;">${exam.examNameEnglish}</td>
+                            <td style="padding: 15px; border-bottom: 1px solid #e0e0e0;">${examDate}</td>
+                            <td style="padding: 15px; border-bottom: 1px solid #e0e0e0;">${exam.totalQuestions}</td>
+                            <td style="padding: 15px; border-bottom: 1px solid #e0e0e0;">${exam.durationMinutes} min</td>
+                            <td style="padding: 15px; border-bottom: 1px solid #e0e0e0;">${statusBadge}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #999;">No exams found. Create your first exam!</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading exams preview:', error);
+                document.getElementById('examsPreviewBody').innerHTML =
+                    '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #f44336;">Error loading exams</td></tr>';
             }
         }
 
