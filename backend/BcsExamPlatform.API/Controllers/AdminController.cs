@@ -443,11 +443,11 @@ public class AdminController : ControllerBase
 
     // Seed Sample Data
     [HttpPost("seed-sample-data")]
-    public async Task<ActionResult> SeedSampleData()
+    public async Task<ActionResult> SeedSampleData([FromQuery] bool force = false)
     {
         try
         {
-            await SeedSampleQuestions();
+            await SeedSampleQuestions(force);
             return Ok(new { message = "Sample data seeded successfully" });
         }
         catch (Exception ex)
@@ -492,12 +492,25 @@ public class AdminController : ControllerBase
         return Ok(topics);
     }
 
-    private async Task SeedSampleQuestions()
+    private async Task SeedSampleQuestions(bool force = false)
     {
         // Check if questions already exist
-        if (await _context.Questions.AnyAsync())
+        var existingCount = await _context.Questions.CountAsync();
+        
+        if (existingCount > 0 && !force)
         {
-            return;
+            return; // Questions already exist, skip seeding
+        }
+
+        // If force is true and questions exist, delete them first
+        if (force && existingCount > 0)
+        {
+            var existingQuestions = await _context.Questions
+                .Include(q => q.Options)
+                .Include(q => q.Explanation)
+                .ToListAsync();
+            _context.Questions.RemoveRange(existingQuestions);
+            await _context.SaveChangesAsync();
         }
 
         var subjects = await _context.Subjects.ToListAsync();
