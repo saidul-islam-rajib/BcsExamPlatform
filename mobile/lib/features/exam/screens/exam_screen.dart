@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../bloc/exam_bloc.dart';
+import '../bloc/exam_event.dart';
+import '../bloc/exam_state.dart';
 import '../../../core/models/question_model.dart';
 
 class ExamScreen extends StatefulWidget {
@@ -276,24 +278,12 @@ class _ExamScreenState extends State<ExamScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      currentQuestion.questionTextEnglish,
+                                      currentQuestion.questionText,
                                       style: const TextStyle(
                                         fontSize: 16,
                                         height: 1.5,
                                       ),
                                     ),
-                                    if (currentQuestion.questionTextBangla.isNotEmpty) ...[
-                                      const SizedBox(height: 12),
-                                      const Divider(),
-                                      const SizedBox(height: 12),
-                                      Text(
-                                        currentQuestion.questionTextBangla,
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          height: 1.5,
-                                        ),
-                                      ),
-                                    ],
                                   ],
                                 ),
                               ),
@@ -304,7 +294,7 @@ class _ExamScreenState extends State<ExamScreen> {
                             ...currentQuestion.options.asMap().entries.map((entry) {
                               final index = entry.key;
                               final option = entry.value;
-                              final optionLabel = String.fromCharCode(65 + index); // A, B, C, D
+                              final optionLabel = String.fromCharCode(65 + index.toInt()); // A, B, C, D
                               final isSelected = _answers[currentQuestion.questionId] == option.optionId;
 
                               return Card(
@@ -347,19 +337,9 @@ class _ExamScreenState extends State<ExamScreen> {
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                option.optionTextEnglish,
+                                                option.optionText,
                                                 style: const TextStyle(fontSize: 14),
                                               ),
-                                              if (option.optionTextBangla.isNotEmpty) ...[
-                                                const SizedBox(height: 4),
-                                                Text(
-                                                  option.optionTextBangla,
-                                                  style: const TextStyle(
-                                                    fontSize: 14,
-                                                    color: Colors.grey,
-                                                  ),
-                                                ),
-                                              ],
                                             ],
                                           ),
                                         ),

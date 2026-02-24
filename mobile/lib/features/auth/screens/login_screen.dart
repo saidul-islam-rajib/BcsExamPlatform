@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../bloc/auth_bloc.dart';
+import '../bloc/auth_event.dart';
+import '../bloc/auth_state.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -193,27 +195,5 @@ class _LoginScreenState extends State<LoginScreen> {
         },
       ),
     );
-  }
-
-  void _handleSubmit() {
-    if (_formKey.currentState!.validate()) {
-      if (_isLogin) {
-        context.read<AuthBloc>().add(
-              LoginRequested(
-                email: _emailController.text,
-                password: _passwordController.text,
-              ),
-            );
-      } else {
-        context.read<AuthBloc>().add(
-              RegisterRequested(
-                email: _emailController.text,
-                password: _passwordController.text,
-                fullName: 'User', // TODO: Add name field
-                preferredLanguage: 'Bangla',
-              ),
-            );
-      }
-    }
   }
 }

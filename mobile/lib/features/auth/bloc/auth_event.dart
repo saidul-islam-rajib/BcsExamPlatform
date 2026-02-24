@@ -51,5 +51,3 @@ class ContinueAsGuest extends AuthEvent {
 class GuestLoginRequested extends ContinueAsGuest {
   const GuestLoginRequested();
 }
-
-class ContinueAsGuest extends AuthEvent {}

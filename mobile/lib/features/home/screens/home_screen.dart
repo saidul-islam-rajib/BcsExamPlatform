@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../auth/bloc/auth_bloc.dart';
+import '../../auth/bloc/auth_event.dart';
+import '../../auth/bloc/auth_state.dart';
 import '../../exam/bloc/exam_bloc.dart';
+import '../../exam/bloc/exam_event.dart';
+import '../../exam/bloc/exam_state.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -220,7 +224,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                                 title: Text(
-                                  exam.examNameEnglish,
+                                  exam.examName,
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                   ),

@@ -57,6 +57,15 @@ class StartExam extends ExamEvent {
   List<Object?> get props => [examId, selectedLanguage, guestEmail];
 }
 
+// Alias for backward compatibility
+class StartExamRequested extends StartExam {
+  const StartExamRequested({
+    required super.examId,
+    required super.selectedLanguage,
+    super.guestEmail,
+  });
+}
+
 class LoadExamQuestions extends ExamEvent {
   final String attemptId;
 
@@ -130,6 +139,11 @@ class LoadExamResult extends ExamEvent {
   List<Object?> get props => [attemptId];
 }
 
+// Alias for backward compatibility
+class LoadResultRequested extends LoadExamResult {
+  const LoadResultRequested({required super.attemptId});
+}
+
 class LoadQuestionReview extends ExamEvent {
   final String attemptId;
 
@@ -137,4 +151,9 @@ class LoadQuestionReview extends ExamEvent {
 
   @override
   List<Object?> get props => [attemptId];
+}
+
+// Alias for backward compatibility
+class LoadReviewRequested extends LoadQuestionReview {
+  const LoadReviewRequested({required super.attemptId});
 }

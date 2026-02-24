@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../bloc/exam_bloc.dart';
+import '../bloc/exam_event.dart';
+import '../bloc/exam_state.dart';
 
 class ExamListScreen extends StatefulWidget {
   const ExamListScreen({super.key});
@@ -129,7 +131,7 @@ class _ExamListScreenState extends State<ExamListScreen> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        exam.examNameEnglish,
+                                        exam.examName,
                                         style: const TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold,
@@ -137,7 +139,7 @@ class _ExamListScreenState extends State<ExamListScreen> {
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
-                                        exam.examNameBangla,
+                                        '${exam.totalQuestions} Questions',
                                         style: const TextStyle(
                                           fontSize: 14,
                                           color: Colors.grey,

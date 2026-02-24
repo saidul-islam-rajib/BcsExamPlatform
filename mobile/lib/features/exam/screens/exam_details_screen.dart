@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../bloc/exam_bloc.dart';
+import '../bloc/exam_event.dart';
+import '../bloc/exam_state.dart';
 
 class ExamDetailsScreen extends StatefulWidget {
   final String examId;
@@ -16,6 +18,8 @@ class ExamDetailsScreen extends StatefulWidget {
 }
 
 class _ExamDetailsScreenState extends State<ExamDetailsScreen> {
+  String _selectedLanguage = 'English';
+
   @override
   void initState() {
     super.initState();
@@ -39,7 +43,10 @@ class _ExamDetailsScreenState extends State<ExamDetailsScreen> {
             onPressed: () {
               Navigator.pop(context);
               context.read<ExamBloc>().add(
-                    StartExamRequested(examId: widget.examId),
+                    StartExamRequested(
+                      examId: widget.examId,
+                      selectedLanguage: _selectedLanguage,
+                    ),
                   );
             },
             child: const Text('Start'),
@@ -125,7 +132,7 @@ class _ExamDetailsScreenState extends State<ExamDetailsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            exam.examNameEnglish,
+                            exam.examName,
                             style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
@@ -133,7 +140,7 @@ class _ExamDetailsScreenState extends State<ExamDetailsScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            exam.examNameBangla,
+                            '${exam.totalQuestions} Questions • ${exam.durationMinutes} Minutes',
                             style: const TextStyle(
                               fontSize: 18,
                               color: Colors.grey,

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../bloc/exam_bloc.dart';
+import '../bloc/exam_event.dart';
+import '../bloc/exam_state.dart';
 
 class ResultScreen extends StatefulWidget {
   final String attemptId;
@@ -185,7 +187,7 @@ class _ResultScreenState extends State<ResultScreen> {
                               ),
                               _buildScoreItem(
                                 'Time',
-                                _formatTime(result.timeSpentSeconds),
+                                result.formattedTime,
                                 Colors.green,
                               ),
                             ],
@@ -213,23 +215,23 @@ class _ResultScreenState extends State<ResultScreen> {
                           const SizedBox(height: 16),
                           _buildStatRow(
                             'Correct Answers',
-                            result.correctAnswers.toString(),
+                            result.totalCorrectAnswers.toString(),
                             Colors.green,
-                            result.correctAnswers / result.totalQuestions,
+                            result.totalCorrectAnswers / 200,
                           ),
                           const SizedBox(height: 12),
                           _buildStatRow(
                             'Wrong Answers',
-                            result.wrongAnswers.toString(),
+                            result.totalWrongAnswers.toString(),
                             Colors.red,
-                            result.wrongAnswers / result.totalQuestions,
+                            result.totalWrongAnswers / 200,
                           ),
                           const SizedBox(height: 12),
                           _buildStatRow(
                             'Unanswered',
-                            result.unansweredQuestions.toString(),
+                            result.totalUnanswered.toString(),
                             Colors.grey,
-                            result.unansweredQuestions / result.totalQuestions,
+                            result.totalUnanswered / 200,
                           ),
                         ],
                       ),

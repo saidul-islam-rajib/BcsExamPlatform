@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/exam_bloc.dart';
+import '../bloc/exam_event.dart';
+import '../bloc/exam_state.dart';
 
 class ReviewScreen extends StatefulWidget {
   final String attemptId;
@@ -75,23 +77,22 @@ class _ReviewScreenState extends State<ReviewScreen> {
             );
           }
 
-          if (state is ReviewLoaded) {
-            var filteredAnswers = state.answers;
+          if (state is QuestionReviewLoaded) {
+            var filteredQuestions = state.questions;
             
             if (_filter == 'Correct') {
-              filteredAnswers = filteredAnswers.where((a) => a.isCorrect).toList();
+              filteredQuestions = filteredQuestions.where((q) => q.isCorrect).toList();
             } else if (_filter == 'Wrong') {
-              filteredAnswers = filteredAnswers.where((a) => !a.isCorrect && a.selectedOptionId != null).toList();
+              filteredQuestions = filteredQuestions.where((q) => !q.isCorrect && q.userSelectedOptionId != null).toList();
             } else if (_filter == 'Unanswered') {
-              filteredAnswers = filteredAnswers.where((a) => a.selectedOptionId == null).toList();
+              filteredQuestions = filteredQuestions.where((q) => q.userSelectedOptionId == null).toList();
             }
 
             return ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: filteredAnswers.length,
+              itemCount: filteredQuestions.length,
               itemBuilder: (context, index) {
-                final answer = filteredAnswers[index];
-                final question = answer.question;
+                final question = filteredQuestions[index];
                 
                 return Card(
                   margin: const EdgeInsets.only(bottom: 16),
@@ -109,17 +110,17 @@ class _ReviewScreenState extends State<ReviewScreen> {
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color: answer.isCorrect
+                                color: question.isCorrect
                                     ? Colors.green
-                                    : answer.selectedOptionId == null
+                                    : question.userSelectedOptionId == null
                                         ? Colors.grey
                                         : Colors.red,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
-                                answer.isCorrect
+                                question.isCorrect
                                     ? 'Correct'
-                                    : answer.selectedOptionId == null
+                                    : question.userSelectedOptionId == null
                                         ? 'Unanswered'
                                         : 'Wrong',
                                 style: const TextStyle(
@@ -144,30 +145,20 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
                         // Question Text
                         Text(
-                          question.questionTextEnglish,
+                          question.questionText,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        if (question.questionTextBangla.isNotEmpty) ...[
-                          const SizedBox(height: 8),
-                          Text(
-                            question.questionTextBangla,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
                         const SizedBox(height: 16),
 
                         // Options
                         ...question.options.asMap().entries.map((entry) {
                           final optIndex = entry.key;
                           final option = entry.value;
-                          final optionLabel = String.fromCharCode(65 + optIndex);
-                          final isUserAnswer = answer.selectedOptionId == option.optionId;
+                          final optionLabel = String.fromCharCode(65 + optIndex.toInt());
+                          final isUserAnswer = question.userSelectedOptionId == option.optionId;
                           final isCorrectAnswer = option.isCorrect;
 
                           Color? backgroundColor;
@@ -207,7 +198,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                                 ),
                                 const SizedBox(width: 8),
                                 Expanded(
-                                  child: Text(option.optionTextEnglish),
+                                  child: Text(option.optionText),
                                 ),
                                 if (isCorrectAnswer)
                                   const Icon(Icons.check_circle, color: Colors.green, size: 20),
@@ -219,7 +210,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                         }).toList(),
 
                         // Explanation
-                        if (question.explanation != null) ...[
+                        if (question.explanation.isNotEmpty) ...[
                           const SizedBox(height: 16),
                           Container(
                             padding: const EdgeInsets.all(12),
@@ -245,14 +236,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                                   ],
                                 ),
                                 const SizedBox(height: 8),
-                                Text(question.explanation!.explanationEnglish),
-                                if (question.explanation!.explanationBangla.isNotEmpty) ...[
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    question.explanation!.explanationBangla,
-                                    style: const TextStyle(color: Colors.grey),
-                                  ),
-                                ],
+                                Text(question.explanation),
                               ],
                             ),
                           ),
@@ -265,13 +249,13 @@ class _ReviewScreenState extends State<ReviewScreen> {
                           runSpacing: 8,
                           children: [
                             Chip(
-                              label: Text(question.subjectNameEnglish),
+                              label: Text(question.subjectName),
                               backgroundColor: Colors.blue.withOpacity(0.1),
                               labelStyle: const TextStyle(fontSize: 12),
                             ),
-                            if (question.topicNameEnglish.isNotEmpty)
+                            if (question.topicName.isNotEmpty)
                               Chip(
-                                label: Text(question.topicNameEnglish),
+                                label: Text(question.topicName),
                                 backgroundColor: Colors.orange.withOpacity(0.1),
                                 labelStyle: const TextStyle(fontSize: 12),
                               ),

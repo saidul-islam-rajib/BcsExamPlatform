@@ -10,6 +10,7 @@ import 'core/routes/app_router.dart';
 import 'core/services/api_service.dart';
 import 'core/services/storage_service.dart';
 import 'features/auth/bloc/auth_bloc.dart';
+import 'features/auth/bloc/auth_event.dart';
 import 'features/exam/bloc/exam_bloc.dart';
 
 void main() async {
