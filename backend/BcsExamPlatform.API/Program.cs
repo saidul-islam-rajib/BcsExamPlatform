@@ -90,6 +90,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// Enable static files for admin panel
+app.UseStaticFiles();
+app.UseDefaultFiles();
+
 // Disable HTTPS redirection in development for Flutter web
 // app.UseHttpsRedirection();
 app.UseCors("AllowFlutterApp");

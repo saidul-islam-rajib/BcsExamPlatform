@@ -456,6 +456,42 @@ public class AdminController : ControllerBase
         }
     }
 
+    // Get Subjects
+    [HttpGet("subjects")]
+    public async Task<ActionResult> GetSubjects()
+    {
+        var subjects = await _context.Subjects
+            .Where(s => s.IsActive)
+            .OrderBy(s => s.DisplayOrder)
+            .Select(s => new
+            {
+                s.SubjectId,
+                s.SubjectNameBangla,
+                s.SubjectNameEnglish,
+                s.DisplayOrder
+            })
+            .ToListAsync();
+
+        return Ok(subjects);
+    }
+
+    // Get Topics by Subject
+    [HttpGet("subjects/{subjectId}/topics")]
+    public async Task<ActionResult> GetTopicsBySubject(Guid subjectId)
+    {
+        var topics = await _context.Topics
+            .Where(t => t.SubjectId == subjectId && t.IsActive)
+            .Select(t => new
+            {
+                t.TopicId,
+                t.TopicNameBangla,
+                t.TopicNameEnglish
+            })
+            .ToListAsync();
+
+        return Ok(topics);
+    }
+
     private async Task SeedSampleQuestions()
     {
         // Check if questions already exist
