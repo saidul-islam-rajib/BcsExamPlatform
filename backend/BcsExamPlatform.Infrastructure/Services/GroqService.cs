@@ -36,12 +36,11 @@ public class GroqService : IOpenAIService
                 model = _model,
                 messages = new[]
                 {
-                    new { role = "system", content = "You are a JSON-only API. You must respond with valid JSON only, no explanations, no markdown, no code blocks. Generate BCS exam questions in the exact JSON format requested." },
+                    new { role = "system", content = "You are an expert BCS exam question generator. You MUST respond with valid JSON only. No markdown, no code blocks, no explanations outside the JSON." },
                     new { role = "user", content = prompt }
                 },
-                temperature = 0.5,
-                max_tokens = 2000,
-                response_format = new { type = "json_object" }
+                temperature = 0.7,
+                max_tokens = 2000
             };
 
             var content = new StringContent(

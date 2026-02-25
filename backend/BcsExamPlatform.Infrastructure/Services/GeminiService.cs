@@ -16,7 +16,7 @@ public class GeminiService : IOpenAIService
     {
         _httpClient = httpClient;
         _apiKey = configuration["Gemini:ApiKey"] ?? throw new Exception("Gemini API Key not configured");
-        _model = configuration["Gemini:Model"] ?? "gemini-1.5-flash-latest";
+        _model = configuration["Gemini:Model"] ?? "gemini-1.5-flash";
     }
 
     public async Task<List<GeneratedQuestion>> GenerateQuestionsAsync(
@@ -45,7 +45,8 @@ public class GeminiService : IOpenAIService
                 generationConfig = new
                 {
                     temperature = 0.7,
-                    maxOutputTokens = 2000
+                    maxOutputTokens = 2000,
+                    responseMimeType = "application/json"
                 }
             };
 
@@ -55,7 +56,7 @@ public class GeminiService : IOpenAIService
                 "application/json"
             );
 
-            var url = $"https://generativelanguage.googleapis.com/v1/models/{_model}:generateContent?key={_apiKey}";
+            var url = $"https://generativelanguage.googleapis.com/v1beta/models/{_model}:generateContent?key={_apiKey}";
             var response = await _httpClient.PostAsync(url, content);
             
             if (!response.IsSuccessStatusCode)
