@@ -36,7 +36,6 @@ public class GroqService : IOpenAIService
                 model = _model,
                 messages = new[]
                 {
-                    new { role = "system", content = "You are an expert BCS exam question generator. You MUST respond with valid JSON only. No markdown, no code blocks, no explanations outside the JSON." },
                     new { role = "user", content = prompt }
                 },
                 temperature = 0.7,
@@ -61,6 +60,11 @@ public class GroqService : IOpenAIService
             var result = JsonSerializer.Deserialize<GroqResponse>(responseBody);
 
             var jsonContent = result?.Choices?[0]?.Message?.Content ?? "{}";
+            
+            // Log the raw response for debugging
+            Console.WriteLine($"[Groq Debug] Raw response length: {jsonContent.Length}");
+            Console.WriteLine($"[Groq Debug] First 200 chars: {jsonContent.Substring(0, Math.Min(200, jsonContent.Length))}");
+            
             var questions = ParseQuestions(jsonContent);
             
             if (questions.Count == 0)
@@ -86,31 +90,27 @@ public class GroqService : IOpenAIService
 
     private string BuildPrompt(string subject, string topic, string difficulty, int count, string language)
     {
-        return $@"Generate {count} {difficulty} level multiple-choice questions for BCS Preliminary Exam.
+        return $@"Generate exactly {count} multiple-choice questions for BCS Preliminary Exam.
 
 Subject: {subject}
-Topic: {topic}
-Language: {language}
+Topic: {topic}  
 Difficulty: {difficulty}
+Language: {language}
 
-Requirements:
-1. Each question must have exactly 4 options (A, B, C, D)
-2. Only one correct answer per question
-3. Include a brief explanation for the correct answer
-4. Questions should be relevant to BCS Preliminary Exam syllabus
-5. Use clear, professional language
+IMPORTANT: Return ONLY a JSON object in this EXACT format with NO additional text, NO markdown, NO explanations:
 
-Return ONLY valid JSON in this exact format (no markdown, no code blocks):
 {{
   ""questions"": [
     {{
-      ""questionText"": ""Question text here"",
+      ""questionText"": ""Your question here?"",
       ""options"": [""Option A"", ""Option B"", ""Option C"", ""Option D""],
-      ""correctOptionIndex"": 0,
-      ""explanation"": ""Explanation here""
+      ""correctOptionIndex"": 1,
+      ""explanation"": ""Brief explanation""
     }}
   ]
-}}";
+}}
+
+Generate {count} questions now:";
     }
 
     private List<GeneratedQuestion> ParseQuestions(string jsonContent)
