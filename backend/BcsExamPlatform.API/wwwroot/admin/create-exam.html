@@ -573,7 +573,7 @@
             const time = document.getElementById('examTime').value;
             const examDateTime = new Date(`${date}T${time}`).toISOString();
 
-            // Prepare exam data
+            // Prepare exam data (without subject distributions)
             const examData = {
                 examNameBangla: document.getElementById('examNameBangla').value,
                 examNameEnglish: document.getElementById('examNameEnglish').value,
@@ -581,34 +581,51 @@
                 totalQuestions: examTotalQuestions,
                 durationMinutes: parseInt(document.getElementById('durationMinutes').value),
                 totalMarks: parseFloat(document.getElementById('totalMarks').value),
-                negativeMarking: parseFloat(document.getElementById('negativeMarking').value) || 0,
-                passPercentage: parseFloat(document.getElementById('passPercentage').value) || 40,
                 languageMode: document.getElementById('languageMode').value,
                 isPaid: document.getElementById('isPaid').checked,
                 examFee: document.getElementById('isPaid').checked ? parseFloat(document.getElementById('examFee').value) || 0 : 0,
-                allowGuestUsers: document.getElementById('allowGuestUsers').checked,
-                subjectDistributions: subjectDistributions
+                allowGuestUsers: document.getElementById('allowGuestUsers').checked
             };
 
             try {
                 showMessage('Creating exam...', 'success');
 
-                const response = await fetch(`${API_BASE}/admin/exams`, {
+                // Step 1: Create exam
+                const examResponse = await fetch(`${API_BASE}/admin/exams`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(examData)
                 });
 
-                const result = await response.json();
+                const examResult = await examResponse.json();
 
-                if (response.ok) {
-                    showMessage('✅ Exam created successfully! Redirecting to exams page...', 'success');
-                    setTimeout(() => {
-                        window.location.href = 'exams.html';
-                    }, 2000);
-                } else {
-                    showMessage('❌ Error: ' + (result.message || 'Failed to create exam'), 'error');
+                if (!examResponse.ok) {
+                    showMessage('❌ Error creating exam: ' + (examResult.message || 'Failed to create exam'), 'error');
+                    return;
                 }
+
+                const examId = examResult.examId;
+                showMessage('Exam created! Adding subject distribution...', 'success');
+
+                // Step 2: Add subject distribution
+                const distResponse = await fetch(`${API_BASE}/admin/exams/${examId}/subject-distribution`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(subjectDistributions)
+                });
+
+                const distResult = await distResponse.json();
+
+                if (!distResponse.ok) {
+                    showMessage('❌ Error adding subject distribution: ' + (distResult.message || 'Failed'), 'error');
+                    return;
+                }
+
+                showMessage('✅ Exam created successfully! Redirecting to exams page...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'exams.html';
+                }, 2000);
+
             } catch (error) {
                 showMessage('❌ Error creating exam: ' + error.message, 'error');
             }
