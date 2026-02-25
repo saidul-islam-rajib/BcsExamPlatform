@@ -110,7 +110,20 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Question>(entity =>
         {
             entity.HasKey(e => e.QuestionId);
-            entity.Property(e => e.DifficultyLevel).HasMaxLength(20);
+            
+            // Configure enums to be stored as strings
+            entity.Property(e => e.DifficultyLevel)
+                .HasConversion<string>()
+                .HasMaxLength(20);
+            
+            entity.Property(e => e.SourceType)
+                .HasConversion<string>()
+                .HasMaxLength(50);
+            
+            entity.Property(e => e.ApprovalStatus)
+                .HasConversion<string>()
+                .HasMaxLength(20);
+            
             entity.Property(e => e.Marks).HasColumnType("decimal(5,2)");
 
             entity.HasOne(e => e.Subject)
@@ -150,6 +163,11 @@ public class ApplicationDbContext : DbContext
             entity.HasKey(e => e.ExamId);
             entity.Property(e => e.TotalMarks).HasColumnType("decimal(7,2)");
             entity.Property(e => e.ExamFee).HasColumnType("decimal(10,2)");
+            
+            // Configure enum to be stored as string
+            entity.Property(e => e.LanguageMode)
+                .HasConversion<string>()
+                .HasMaxLength(20);
         });
 
         modelBuilder.Entity<ExamSubjectDistribution>(entity =>
