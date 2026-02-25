@@ -338,22 +338,23 @@
         </div>
 
         <div class="filters">
-            <select id="examFilter" onchange="loadQuestions()">
+            <select id="examFilter" onchange="currentPage = 1; loadQuestions()">
                 <option value="">All Exams</option>
             </select>
-            <select id="subjectFilter" onchange="loadQuestions()">
+            <select id="subjectFilter" onchange="currentPage = 1; loadQuestions()">
                 <option value="">All Subjects</option>
             </select>
-            <select id="difficultyFilter" onchange="loadQuestions()">
+            <select id="difficultyFilter" onchange="currentPage = 1; loadQuestions()">
                 <option value="">All Difficulties</option>
                 <option value="Easy">Easy</option>
                 <option value="Intermediate">Intermediate</option>
                 <option value="Hard">Hard</option>
             </select>
-            <select id="statusFilter" onchange="loadQuestions()">
+            <select id="statusFilter" onchange="currentPage = 1; loadQuestions()">
                 <option value="">All Status</option>
-                <option value="true">Approved</option>
-                <option value="false">Pending</option>
+                <option value="Approved">Approved</option>
+                <option value="Created">Created (Draft)</option>
+                <option value="Rejected">Rejected</option>
             </select>
             <button class="btn" onclick="window.location.href='create-question.html'"
                 style="background: #28a745; color: white;">+ Create Question</button>
@@ -381,7 +382,38 @@
                 </tr>
             </tbody>
         </table>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-container"
+            style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div class="pagination-info" style="color: #666; font-size: 14px;">
+                Showing <span id="showingFrom">0</span> to <span id="showingTo">0</span> of <span
+                    id="totalItems">0</span> questions
+            </div>
+            <div class="pagination-controls" style="display: flex; gap: 10px; align-items: center;">
+                <label style="color: #666; font-size: 14px;">
+                    Page Size:
+                    <select id="pageSizeSelect" onchange="changePageSize()"
+                        style="margin-left: 8px; padding: 6px 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px;">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </label>
+                <button onclick="goToPage(currentPage - 1)" id="prevBtn" class="btn"
+                    style="padding: 8px 16px; font-size: 14px;" disabled>Previous</button>
+                <span id="pageInfo" style="color: #666; font-weight: 600; min-width: 100px; text-align: center;">Page 1
+                    of 1</span>
+                <button onclick="goToPage(currentPage + 1)" id="nextBtn" class="btn"
+                    style="padding: 8px 16px; font-size: 14px;" disabled>Next</button>
+            </div>
+        </div>
     </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
 
     <!-- Question Detail Modal -->
     <div id="questionModal" class="modal">
@@ -397,12 +429,73 @@
     <script>
         const API_BASE = 'http://localhost:2781/api';
         let allQuestions = [];
+        let currentPage = 1;
+        let pageSize = 10;
+        let totalPages = 1;
+        let totalCount = 0;
+
+        // Toast notification function
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.style.cssText = `
+                padding: 16px 24px;
+                margin-bottom: 10px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                animation: slideIn 0.3s ease-out;
+                min-width: 300px;
+            `;
+
+            if (type === 'success') {
+                toast.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            } else if (type === 'error') {
+                toast.style.background = 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
+            } else if (type === 'info') {
+                toast.style.background = 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)';
+            }
+
+            toast.textContent = message;
+            document.getElementById('toastContainer').appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease-in';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
 
         window.onload = async () => {
             await loadExams();
             await loadSubjects();
             await loadQuestions();
         };
+
+        function changePageSize() {
+            pageSize = parseInt(document.getElementById('pageSizeSelect').value);
+            currentPage = 1;
+            loadQuestions();
+        }
+
+        function goToPage(page) {
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            loadQuestions();
+        }
+
+        function updatePaginationUI() {
+            const showingFrom = totalCount === 0 ? 0 : ((currentPage - 1) * pageSize) + 1;
+            const showingTo = Math.min(currentPage * pageSize, totalCount);
+
+            document.getElementById('showingFrom').textContent = showingFrom;
+            document.getElementById('showingTo').textContent = showingTo;
+            document.getElementById('totalItems').textContent = totalCount;
+            document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages || totalPages === 0;
+        }
 
         async function loadSubjects() {
             try {
@@ -443,7 +536,7 @@
                 const examId = document.getElementById('examFilter').value;
                 const subjectId = document.getElementById('subjectFilter').value;
                 const difficulty = document.getElementById('difficultyFilter').value;
-                const isApproved = document.getElementById('statusFilter').value;
+                const approvalStatus = document.getElementById('statusFilter').value;
 
                 let url, data;
                 let selectedExamName = '';
@@ -458,7 +551,7 @@
                     const response = await fetch(url);
 
                     if (!response.ok) {
-                        alert('Error loading exam questions. Make sure the exam has generated questions.');
+                        showToast('Error loading exam questions. Make sure the exam has generated questions.', 'error');
                         const tbody = document.getElementById('questionsTableBody');
                         tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: #f44336;">Error loading questions. Please generate questions for this exam first.</td></tr>';
                         return;
@@ -475,34 +568,55 @@
                         topicName: q.topicName,
                         difficultyLevel: q.difficultyLevel,
                         marks: q.marks,
-                        isApproved: true,
+                        approvalStatus: 'Approved',
                         isActive: true,
                         examName: selectedExamName
                     }));
+
+                    totalCount = allQuestions.length;
+                    totalPages = Math.ceil(totalCount / pageSize);
 
                     data = {
                         totalCount: allQuestions.length,
                         questions: allQuestions
                     };
                 } else {
-                    // Otherwise get all questions with filters
-                    url = `${API_BASE}/admin/questions?pageSize=200`;
+                    // Otherwise get all questions with filters and pagination
+                    url = `${API_BASE}/admin/questions?page=${currentPage}&pageSize=${pageSize}`;
                     if (subjectId) url += `&subjectId=${subjectId}`;
                     if (difficulty) url += `&difficulty=${difficulty}`;
-                    if (isApproved) url += `&isApproved=${isApproved}`;
+                    if (approvalStatus) url += `&approvalStatus=${approvalStatus}`;
 
                     const response = await fetch(url);
                     data = await response.json();
+
+                    totalCount = data.totalCount || 0;
+                    totalPages = data.totalPages || 1;
+
                     allQuestions = (data.questions || []).map(q => ({
                         ...q,
                         examName: '-'
                     }));
                 }
 
+                // Update pagination UI
+                updatePaginationUI();
+
                 // Update stats
-                document.getElementById('totalQuestions').textContent = data.totalCount || 0;
-                document.getElementById('approvedQuestions').textContent = allQuestions.filter(q => q.isApproved).length;
-                document.getElementById('pendingQuestions').textContent = allQuestions.filter(q => !q.isApproved).length;
+                document.getElementById('totalQuestions').textContent = totalCount;
+
+                // For stats, we need to fetch all if paginated
+                if (!examId) {
+                    const statsUrl = `${API_BASE}/admin/questions?page=1&pageSize=1000`;
+                    const statsResponse = await fetch(statsUrl);
+                    const statsData = await statsResponse.json();
+                    const allQuestionsForStats = statsData.questions || [];
+                    document.getElementById('approvedQuestions').textContent = allQuestionsForStats.filter(q => q.approvalStatus === 'Approved').length;
+                    document.getElementById('pendingQuestions').textContent = allQuestionsForStats.filter(q => q.approvalStatus === 'Created').length;
+                } else {
+                    document.getElementById('approvedQuestions').textContent = allQuestions.filter(q => q.approvalStatus === 'Approved').length;
+                    document.getElementById('pendingQuestions').textContent = allQuestions.filter(q => q.approvalStatus === 'Created').length;
+                }
 
                 // Render table
                 const tbody = document.getElementById('questionsTableBody');
@@ -517,16 +631,17 @@
                     const row = document.createElement('tr');
                     row.onclick = () => showQuestionDetails(q.questionId);
 
-                    const difficultyClass = q.difficultyLevel.toLowerCase();
-                    const statusClass = q.isApproved ? 'approved' : 'pending';
+                    const difficultyClass = q.difficultyLevel.toString().toLowerCase();
+                    const statusClass = q.approvalStatus === 'Approved' ? 'approved' : 'pending';
+                    const globalIndex = ((currentPage - 1) * pageSize) + index + 1;
 
                     row.innerHTML = `
-                        <td>${index + 1}</td>
+                        <td>${globalIndex}</td>
                         <td>${q.questionTextEnglish.substring(0, 80)}${q.questionTextEnglish.length > 80 ? '...' : ''}</td>
                         <td>${q.subjectName}</td>
                         <td><span class="badge badge-${difficultyClass}">${q.difficultyLevel}</span></td>
                         <td style="font-size: 13px; color: #666;">${q.examName || '-'}</td>
-                        <td><span class="badge badge-${statusClass}">${q.isApproved ? 'Approved' : 'Pending'}</span></td>
+                        <td><span class="badge badge-${statusClass}">${q.approvalStatus}</span></td>
                         <td>
                             <div class="action-buttons">
                                 <button class="btn-action btn-edit" onclick="event.stopPropagation(); window.location.href='create-question.html?questionId=${q.questionId}'">Edit</button>
@@ -538,6 +653,7 @@
                 });
             } catch (error) {
                 console.error('Error loading questions:', error);
+                showToast('Error loading questions: ' + error.message, 'error');
             }
         }
 
@@ -612,16 +728,43 @@
                 });
 
                 if (response.ok) {
-                    alert('Question deleted successfully');
+                    showToast('Question deleted successfully', 'success');
                     await loadQuestions();
                 } else {
-                    alert('Error deleting question');
+                    const error = await response.json();
+                    showToast(error.message || 'Error deleting question', 'error');
                 }
             } catch (error) {
                 console.error('Error deleting question:', error);
-                alert('Error deleting question');
+                showToast('Error deleting question: ' + error.message, 'error');
             }
         }
+
+        // Add CSS animation for toast
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
 
         // Close modal when clicking outside
         window.onclick = function (event) {

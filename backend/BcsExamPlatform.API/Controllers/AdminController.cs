@@ -162,7 +162,7 @@ public class AdminController : ControllerBase
         [FromQuery] DifficultyLevel? difficulty = null,
         [FromQuery] ApprovalStatus? approvalStatus = null,
         [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 50)
+        [FromQuery] int pageSize = 10)
     {
         var query = _context.Questions
             .Include(q => q.Subject)
@@ -186,6 +186,8 @@ public class AdminController : ControllerBase
         }
 
         var totalCount = await query.CountAsync();
+        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+        
         var questions = await query
             .OrderByDescending(q => q.CreatedAt)
             .Skip((page - 1) * pageSize)
@@ -207,7 +209,8 @@ public class AdminController : ControllerBase
         return Ok(new
         {
             totalCount,
-            page,
+            totalPages,
+            currentPage = page,
             pageSize,
             questions = questionDTOs
         });
