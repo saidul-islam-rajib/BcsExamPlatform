@@ -16,7 +16,7 @@ public class GeminiService : IOpenAIService
     {
         _httpClient = httpClient;
         _apiKey = configuration["Gemini:ApiKey"] ?? throw new Exception("Gemini API Key not configured");
-        _model = configuration["Gemini:Model"] ?? "gemini-1.5-flash";
+        _model = configuration["Gemini:Model"] ?? "gemini-1.5-flash-latest";
     }
 
     public async Task<List<GeneratedQuestion>> GenerateQuestionsAsync(
