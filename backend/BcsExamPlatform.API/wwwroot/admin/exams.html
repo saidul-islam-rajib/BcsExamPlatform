@@ -659,12 +659,34 @@
 
         async function loadExamOverview(examId) {
             try {
-                const response = await fetch(`${API_BASE}/exam/${examId}`);
+                const response = await fetch(`${API_BASE}/admin/exams/${examId}`);
                 const exam = await response.json();
 
                 document.getElementById('examModalTitle').textContent = exam.examName;
 
                 const overviewDiv = document.getElementById('examOverview');
+
+                const subjectDistributionHtml = exam.subjectDistributions && exam.subjectDistributions.length > 0
+                    ? `<h3 style="margin: 30px 0 15px 0; color: #667eea;">Subject Distribution</h3>
+                       <div class="info-grid">
+                           ${exam.subjectDistributions.map(dist => `
+                               <div class="info-card">
+                                   <h4>${dist.subjectName}</h4>
+                                   <p>${dist.totalQuestions} Questions</p>
+                                   <div style="font-size: 13px; color: #666; margin-top: 8px;">
+                                       Easy: ${dist.easyQuestions} | 
+                                       Intermediate: ${dist.intermediateQuestions} | 
+                                       Hard: ${dist.hardQuestions}
+                                   </div>
+                               </div>
+                           `).join('')}
+                       </div>`
+                    : `<h3 style="margin: 30px 0 15px 0; color: #f44336;">Subject Distribution</h3>
+                       <div style="background: #ffebee; padding: 15px; border-radius: 8px; border-left: 4px solid #f44336;">
+                           <strong>⚠️ No subject distribution defined</strong>
+                           <p style="margin-top: 8px; color: #666;">This exam has no subject distribution. You cannot generate questions without it.</p>
+                       </div>`;
+
                 overviewDiv.innerHTML = `
                     <div class="info-grid">
                         <div class="info-card">
@@ -701,20 +723,7 @@
                         </div>
                     </div>
 
-                    <h3 style="margin: 30px 0 15px 0; color: #667eea;">Subject Distribution</h3>
-                    <div class="info-grid">
-                        ${exam.subjectDistributions.map(dist => `
-                            <div class="info-card">
-                                <h4>${dist.subjectName}</h4>
-                                <p>${dist.totalQuestions} Questions</p>
-                                <div style="font-size: 13px; color: #666; margin-top: 8px;">
-                                    Easy: ${dist.easyQuestions} | 
-                                    Intermediate: ${dist.intermediateQuestions} | 
-                                    Hard: ${dist.hardQuestions}
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
+                    ${subjectDistributionHtml}
                 `;
             } catch (error) {
                 console.error('Error loading exam overview:', error);

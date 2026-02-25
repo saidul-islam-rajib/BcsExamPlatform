@@ -608,16 +608,22 @@
                 showMessage('Exam created! Adding subject distribution...', 'success');
 
                 // Step 2: Add subject distribution
+                console.log('Sending subject distribution:', subjectDistributions);
+                console.log('Exam ID:', examId);
+
                 const distResponse = await fetch(`${API_BASE}/admin/exams/${examId}/subject-distribution`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(subjectDistributions)
                 });
 
+                console.log('Distribution response status:', distResponse.status);
                 const distResult = await distResponse.json();
+                console.log('Distribution result:', distResult);
 
                 if (!distResponse.ok) {
                     showMessage('❌ Error adding subject distribution: ' + (distResult.message || 'Failed'), 'error');
+                    console.error('Distribution error:', distResult);
                     return;
                 }
 

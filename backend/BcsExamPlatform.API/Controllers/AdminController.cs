@@ -460,6 +460,54 @@ public class AdminController : ControllerBase
         return Ok(examDTOs);
     }
 
+    [HttpGet("exams/{examId}")]
+    public async Task<ActionResult> GetExamDetails(Guid examId)
+    {
+        try
+        {
+            var exam = await _context.Exams
+                .Include(e => e.SubjectDistributions)
+                    .ThenInclude(sd => sd.Subject)
+                .FirstOrDefaultAsync(e => e.ExamId == examId);
+
+            if (exam == null)
+            {
+                return NotFound(new { message = "Exam not found" });
+            }
+
+            var examDto = new
+            {
+                examId = exam.ExamId,
+                examName = exam.ExamNameEnglish,
+                examNameBangla = exam.ExamNameBangla,
+                examDate = exam.ExamDate,
+                totalQuestions = exam.TotalQuestions,
+                durationMinutes = exam.DurationMinutes,
+                totalMarks = exam.TotalMarks,
+                languageMode = exam.LanguageMode,
+                isPaid = exam.IsPaid,
+                examFee = exam.ExamFee ?? 0,
+                allowGuestUsers = exam.AllowGuestUsers,
+                isPublished = exam.IsPublished,
+                subjectDistributions = exam.SubjectDistributions?.Select(sd => new
+                {
+                    subjectId = sd.SubjectId,
+                    subjectName = sd.Subject?.SubjectNameEnglish ?? "Unknown",
+                    totalQuestions = sd.TotalQuestions,
+                    easyQuestions = sd.EasyQuestions,
+                    intermediateQuestions = sd.IntermediateQuestions,
+                    hardQuestions = sd.HardQuestions
+                }).ToList() ?? new List<object>()
+            };
+
+            return Ok(examDto);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = $"Error getting exam details: {ex.Message}" });
+        }
+    }
+
     [HttpGet("exams/{examId}/questions")]
     public async Task<ActionResult> GetExamQuestions(Guid examId)
     {
