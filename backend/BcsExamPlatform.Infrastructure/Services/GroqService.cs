@@ -65,7 +65,7 @@ public class GroqService : IOpenAIService
             
             if (questions.Count == 0)
             {
-                throw new Exception("Groq returned no questions. Response may be in wrong format.");
+                throw new Exception($"Groq returned no questions. Raw response: {jsonContent.Substring(0, Math.Min(500, jsonContent.Length))}");
             }
 
             return questions;

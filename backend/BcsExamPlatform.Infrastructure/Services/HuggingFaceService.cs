@@ -48,7 +48,7 @@ public class HuggingFaceService : IOpenAIService
                 "application/json"
             );
 
-            var url = $"https://router.huggingface.co/models/{_model}";
+            var url = $"https://api-inference.huggingface.co/models/{_model}";
             var response = await _httpClient.PostAsync(url, content);
             
             if (!response.IsSuccessStatusCode)
@@ -65,7 +65,7 @@ public class HuggingFaceService : IOpenAIService
             
             if (questions.Count == 0)
             {
-                throw new Exception("HuggingFace returned no questions. Response may be in wrong format.");
+                throw new Exception($"HuggingFace returned no questions. Raw response: {jsonContent.Substring(0, Math.Min(500, jsonContent.Length))}");
             }
 
             return questions;

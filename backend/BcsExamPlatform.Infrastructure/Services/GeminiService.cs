@@ -45,8 +45,7 @@ public class GeminiService : IOpenAIService
                 generationConfig = new
                 {
                     temperature = 0.7,
-                    maxOutputTokens = 2000,
-                    responseMimeType = "application/json"
+                    maxOutputTokens = 2000
                 }
             };
 
@@ -73,7 +72,7 @@ public class GeminiService : IOpenAIService
             
             if (questions.Count == 0)
             {
-                throw new Exception("Gemini returned no questions. Response may be in wrong format.");
+                throw new Exception($"Gemini returned no questions. Raw response: {jsonContent.Substring(0, Math.Min(500, jsonContent.Length))}");
             }
 
             return questions;
