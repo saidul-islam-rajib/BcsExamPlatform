@@ -18,15 +18,30 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Register AI Service based on configuration
-var aiProvider = builder.Configuration["AIProvider"] ?? "OpenAI";
-if (aiProvider == "Gemini")
+var aiProvider = builder.Configuration["AIProvider"] ?? "Fallback";
+
+if (aiProvider == "Fallback")
+{
+    builder.Services.AddSingleton<BcsExamPlatform.Core.Services.IOpenAIService, BcsExamPlatform.Infrastructure.Services.FallbackAIService>();
+}
+else if (aiProvider == "Gemini")
 {
     builder.Services.AddHttpClient<BcsExamPlatform.Core.Services.IOpenAIService, BcsExamPlatform.Infrastructure.Services.GeminiService>();
+}
+else if (aiProvider == "Groq")
+{
+    builder.Services.AddHttpClient<BcsExamPlatform.Core.Services.IOpenAIService, BcsExamPlatform.Infrastructure.Services.GroqService>();
+}
+else if (aiProvider == "HuggingFace")
+{
+    builder.Services.AddHttpClient<BcsExamPlatform.Core.Services.IOpenAIService, BcsExamPlatform.Infrastructure.Services.HuggingFaceService>();
 }
 else
 {
     builder.Services.AddHttpClient<BcsExamPlatform.Core.Services.IOpenAIService, BcsExamPlatform.Infrastructure.Services.OpenAIService>();
 }
+
+builder.Services.AddHttpClientFactory();
 
 // JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
