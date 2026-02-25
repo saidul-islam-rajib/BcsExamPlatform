@@ -145,43 +145,6 @@ public class AdminController : ControllerBase
         await _context.SaveChangesAsync();
         return Ok(new { message = "Explanation updated successfully" });
     }
-    [HttpPut("questions/{questionId}/explanation")]
-    public async Task<ActionResult> UpdateQuestionExplanation(Guid questionId, CreateExplanationDTO dto)
-    {
-        var question = await _context.Questions
-            .Include(q => q.Explanation)
-            .FirstOrDefaultAsync(q => q.QuestionId == questionId);
-
-        if (question == null)
-        {
-            return NotFound(new { message = "Question not found" });
-        }
-
-        if (question.Explanation != null)
-        {
-            // Update existing explanation
-            question.Explanation.ExplanationBangla = dto.ExplanationBangla;
-            question.Explanation.ExplanationEnglish = dto.ExplanationEnglish;
-            question.Explanation.UpdatedAt = DateTime.UtcNow;
-        }
-        else
-        {
-            // Create new explanation
-            var explanation = new QuestionExplanation
-            {
-                ExplanationId = Guid.NewGuid(),
-                QuestionId = questionId,
-                ExplanationBangla = dto.ExplanationBangla,
-                ExplanationEnglish = dto.ExplanationEnglish,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
-            _context.QuestionExplanations.Add(explanation);
-        }
-
-        await _context.SaveChangesAsync();
-        return Ok(new { message = "Explanation updated successfully" });
-    }
 
     [HttpGet("questions")]
     public async Task<ActionResult<List<QuestionListDTO>>> GetQuestions(
