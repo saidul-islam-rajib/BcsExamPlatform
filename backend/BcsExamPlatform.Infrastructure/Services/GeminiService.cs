@@ -56,7 +56,7 @@ public class GeminiService : IOpenAIService
                 "application/json"
             );
 
-            var url = $"https://generativelanguage.googleapis.com/v1beta/models/{_model}:generateContent?key={_apiKey}";
+            var url = $"https://generativelanguage.googleapis.com/v1/models/{_model}:generateContent?key={_apiKey}";
             var response = await _httpClient.PostAsync(url, content);
             
             if (!response.IsSuccessStatusCode)

@@ -15,7 +15,7 @@ public class GroqService : IOpenAIService
     {
         _httpClient = httpClient;
         _apiKey = configuration["Groq:ApiKey"] ?? throw new Exception("Groq API Key not configured");
-        _model = configuration["Groq:Model"] ?? "llama-3.1-70b-versatile";
+        _model = configuration["Groq:Model"] ?? "llama-3.3-70b-versatile";
         
         _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _apiKey);
     }

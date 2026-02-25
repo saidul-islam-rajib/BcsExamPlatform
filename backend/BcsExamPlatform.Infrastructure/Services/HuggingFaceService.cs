@@ -48,7 +48,7 @@ public class HuggingFaceService : IOpenAIService
                 "application/json"
             );
 
-            var url = $"https://api-inference.huggingface.co/models/{_model}";
+            var url = $"https://router.huggingface.co/models/{_model}";
             var response = await _httpClient.PostAsync(url, content);
             
             if (!response.IsSuccessStatusCode)
