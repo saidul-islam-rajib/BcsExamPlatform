@@ -806,6 +806,94 @@ public class AdminController : ControllerBase
         return question;
     }
 
+    [HttpDelete("exams/{examId}")]
+    public async Task<ActionResult> DeleteExam(Guid examId)
+    {
+        try
+        {
+            var exam = await _context.Exams
+                .Include(e => e.SubjectDistributions)
+                .Include(e => e.ExamQuestions)
+                .FirstOrDefaultAsync(e => e.ExamId == examId);
+
+            if (exam == null)
+            {
+                return NotFound(new { message = "Exam not found" });
+            }
+
+            // Remove related data
+            if (exam.SubjectDistributions != null)
+            {
+                _context.ExamSubjectDistributions.RemoveRange(exam.SubjectDistributions);
+            }
+
+            if (exam.ExamQuestions != null)
+            {
+                _context.ExamQuestions.RemoveRange(exam.ExamQuestions);
+            }
+
+            // Remove exam
+            _context.Exams.Remove(exam);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Exam deleted successfully" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = $"Error deleting exam: {ex.Message}" });
+        }
+    }
+
+    [HttpDelete("exams/bulk-delete")]
+    public async Task<ActionResult> BulkDeleteExams([FromBody] List<Guid> examIds)
+    {
+        try
+        {
+            if (examIds == null || !examIds.Any())
+            {
+                return BadRequest(new { message = "No exam IDs provided" });
+            }
+
+            var exams = await _context.Exams
+                .Include(e => e.SubjectDistributions)
+                .Include(e => e.ExamQuestions)
+                .Where(e => examIds.Contains(e.ExamId))
+                .ToListAsync();
+
+            if (!exams.Any())
+            {
+                return NotFound(new { message = "No exams found to delete" });
+            }
+
+            // Remove related data
+            foreach (var exam in exams)
+            {
+                if (exam.SubjectDistributions != null)
+                {
+                    _context.ExamSubjectDistributions.RemoveRange(exam.SubjectDistributions);
+                }
+
+                if (exam.ExamQuestions != null)
+                {
+                    _context.ExamQuestions.RemoveRange(exam.ExamQuestions);
+                }
+            }
+
+            // Remove exams
+            _context.Exams.RemoveRange(exams);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { 
+                message = $"{exams.Count} exam(s) deleted successfully",
+                deletedCount = exams.Count
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = $"Error deleting exams: {ex.Message}" });
+        }
+    }
+
     // Seed Sample Data
     [HttpPost("seed-sample-data")]
     public async Task<ActionResult> SeedSampleData([FromQuery] bool force = false)
