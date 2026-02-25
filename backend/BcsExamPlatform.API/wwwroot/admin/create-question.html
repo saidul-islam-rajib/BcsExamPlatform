@@ -249,6 +249,124 @@
             padding-bottom: 10px;
             border-bottom: 2px solid #667eea;
         }
+
+        /* Toggle Switch Styles */
+        .toggle-container {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .toggle-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+
+        .toggle-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+        }
+
+        .toggle-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .toggle-info {
+            flex: 1;
+        }
+
+        .toggle-label {
+            font-weight: 600;
+            color: #333;
+            font-size: 15px;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .toggle-description {
+            color: #666;
+            font-size: 13px;
+            margin: 0;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 56px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 28px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked+.toggle-slider {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .toggle-switch input:checked+.toggle-slider:before {
+            transform: translateX(28px);
+        }
+
+        .toggle-switch input:focus+.toggle-slider {
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .status-badge.active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
     </style>
 </head>
 
@@ -298,21 +416,42 @@
                     </div>
                 </div>
 
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label style="display: flex; align-items: center; gap: 8px;">
-                            <input type="checkbox" id="isApproved" style="width: auto; margin: 0;">
-                            <span>Approved for Use</span>
+                <div class="section-title">Question Status</div>
+
+                <div class="toggle-container">
+                    <div class="toggle-item">
+                        <div class="toggle-info">
+                            <span class="toggle-label">
+                                Approved for Use
+                                <span class="status-badge active" id="approvedBadge"
+                                    style="display: none;">Approved</span>
+                                <span class="status-badge inactive" id="notApprovedBadge" style="display: none;">Not
+                                    Approved</span>
+                            </span>
+                            <p class="toggle-description">Only approved questions can be used in exams and shown to
+                                students</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="isApproved">
+                            <span class="toggle-slider"></span>
                         </label>
-                        <small>Only approved questions can be used in exams</small>
                     </div>
 
-                    <div class="form-group">
-                        <label style="display: flex; align-items: center; gap: 8px;">
-                            <input type="checkbox" id="isActive" style="width: auto; margin: 0;">
-                            <span>Active</span>
+                    <div class="toggle-item">
+                        <div class="toggle-info">
+                            <span class="toggle-label">
+                                Active Status
+                                <span class="status-badge active" id="activeBadge" style="display: none;">Active</span>
+                                <span class="status-badge inactive" id="inactiveBadge"
+                                    style="display: none;">Inactive</span>
+                            </span>
+                            <p class="toggle-description">Inactive questions are hidden from the system and cannot be
+                                selected</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="isActive">
+                            <span class="toggle-slider"></span>
                         </label>
-                        <small>Inactive questions are hidden from the system</small>
                     </div>
                 </div>
 
@@ -398,7 +537,25 @@
                 document.getElementById('isApproved').checked = true;
                 document.getElementById('isActive').checked = true;
             }
+
+            // Update status badges when toggles change
+            updateStatusBadges();
+            document.getElementById('isApproved').addEventListener('change', updateStatusBadges);
+            document.getElementById('isActive').addEventListener('change', updateStatusBadges);
         });
+
+        function updateStatusBadges() {
+            const isApproved = document.getElementById('isApproved').checked;
+            const isActive = document.getElementById('isActive').checked;
+
+            // Update approved badges
+            document.getElementById('approvedBadge').style.display = isApproved ? 'inline-block' : 'none';
+            document.getElementById('notApprovedBadge').style.display = isApproved ? 'none' : 'inline-block';
+
+            // Update active badges
+            document.getElementById('activeBadge').style.display = isActive ? 'inline-block' : 'none';
+            document.getElementById('inactiveBadge').style.display = isActive ? 'none' : 'inline-block';
+        }
 
         async function loadSubjects() {
             try {
@@ -478,6 +635,9 @@
                 // Set status checkboxes
                 document.getElementById('isApproved').checked = question.isApproved || false;
                 document.getElementById('isActive').checked = question.isActive !== false; // Default to true
+
+                // Update status badges
+                updateStatusBadges();
 
                 // Fill options - sort by optionOrder first
                 if (question.options && Array.isArray(question.options) && question.options.length > 0) {
