@@ -17,6 +17,7 @@ public class CreateQuestionDTO
     public bool IsAIGenerated { get; set; }
     public bool IsUnique { get; set; }
     public bool IsApproved { get; set; }
+    public string ApprovalStatus { get; set; } = "Created"; // Created, Approved, Rejected
 }
 
 public class UpdateQuestionDTO
@@ -34,6 +35,7 @@ public class UpdateQuestionDTO
     public string? SourceReference { get; set; }
     public bool IsApproved { get; set; }
     public bool IsActive { get; set; } = true;
+    public string ApprovalStatus { get; set; } = "Created"; // Created, Approved, Rejected
 }
 
 public class CreateQuestionOptionDTO
@@ -84,6 +86,7 @@ public class QuestionDetailDTO
     public bool IsAIGenerated { get; set; }
     public bool IsApproved { get; set; }
     public bool IsActive { get; set; }
+    public string ApprovalStatus { get; set; } = "Created";
     public List<QuestionOptionDetailDTO> Options { get; set; } = new();
     public string ExplanationBangla { get; set; } = string.Empty;
     public string ExplanationEnglish { get; set; } = string.Empty;

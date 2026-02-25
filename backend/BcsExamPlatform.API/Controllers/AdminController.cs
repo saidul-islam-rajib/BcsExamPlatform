@@ -235,6 +235,7 @@ public class AdminController : ControllerBase
             IsAIGenerated = question.IsAIGenerated,
             IsApproved = question.IsApproved,
             IsActive = question.IsActive,
+            ApprovalStatus = question.IsApproved ? "Approved" : "Created",
             Options = question.Options.Select(o => new QuestionOptionDetailDTO
             {
                 OptionId = o.OptionId,

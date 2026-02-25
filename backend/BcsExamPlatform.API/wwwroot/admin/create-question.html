@@ -418,41 +418,22 @@
 
                 <div class="section-title">Question Status</div>
 
-                <div class="toggle-container">
-                    <div class="toggle-item">
-                        <div class="toggle-info">
-                            <span class="toggle-label">
-                                Approved for Use
-                                <span class="status-badge active" id="approvedBadge"
-                                    style="display: none;">Approved</span>
-                                <span class="status-badge inactive" id="notApprovedBadge" style="display: none;">Not
-                                    Approved</span>
-                            </span>
-                            <p class="toggle-description">Only approved questions can be used in exams and shown to
-                                students</p>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="isApproved">
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
+                <div class="form-group">
+                    <label>Approval Status <span class="required">*</span></label>
+                    <select id="approvalStatus" required>
+                        <option value="Created">Created (Draft)</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                    <small>Only approved questions can be used in exams</small>
+                </div>
 
-                    <div class="toggle-item">
-                        <div class="toggle-info">
-                            <span class="toggle-label">
-                                Active Status
-                                <span class="status-badge active" id="activeBadge" style="display: none;">Active</span>
-                                <span class="status-badge inactive" id="inactiveBadge"
-                                    style="display: none;">Inactive</span>
-                            </span>
-                            <p class="toggle-description">Inactive questions are hidden from the system and cannot be
-                                selected</p>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="isActive">
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" id="isActive" style="width: auto; margin: 0;">
+                        <span>Active</span>
+                    </label>
+                    <small>Inactive questions are hidden from the system</small>
                 </div>
 
                 <div class="section-title">Question Text</div>
@@ -534,28 +515,10 @@
                 await loadQuestionData(questionIdParam);
             } else {
                 // Set default values for new question
-                document.getElementById('isApproved').checked = true;
+                document.getElementById('approvalStatus').value = 'Approved';
                 document.getElementById('isActive').checked = true;
             }
-
-            // Update status badges when toggles change
-            updateStatusBadges();
-            document.getElementById('isApproved').addEventListener('change', updateStatusBadges);
-            document.getElementById('isActive').addEventListener('change', updateStatusBadges);
         });
-
-        function updateStatusBadges() {
-            const isApproved = document.getElementById('isApproved').checked;
-            const isActive = document.getElementById('isActive').checked;
-
-            // Update approved badges
-            document.getElementById('approvedBadge').style.display = isApproved ? 'inline-block' : 'none';
-            document.getElementById('notApprovedBadge').style.display = isApproved ? 'none' : 'inline-block';
-
-            // Update active badges
-            document.getElementById('activeBadge').style.display = isActive ? 'inline-block' : 'none';
-            document.getElementById('inactiveBadge').style.display = isActive ? 'none' : 'inline-block';
-        }
 
         async function loadSubjects() {
             try {
@@ -632,12 +595,9 @@
                 document.getElementById('questionTextEnglish').value = question.questionTextEnglish || '';
                 document.getElementById('questionTextBangla').value = question.questionTextBangla || '';
 
-                // Set status checkboxes
-                document.getElementById('isApproved').checked = question.isApproved || false;
+                // Set status dropdown and checkbox
+                document.getElementById('approvalStatus').value = question.approvalStatus || (question.isApproved ? 'Approved' : 'Created');
                 document.getElementById('isActive').checked = question.isActive !== false; // Default to true
-
-                // Update status badges
-                updateStatusBadges();
 
                 // Fill options - sort by optionOrder first
                 if (question.options && Array.isArray(question.options) && question.options.length > 0) {
@@ -696,7 +656,7 @@
                 difficultyLevel: document.getElementById('difficultyLevel').value,
                 marks: parseFloat(document.getElementById('marks').value),
                 sourceType: 'Manual',
-                isApproved: document.getElementById('isApproved').checked,
+                isApproved: document.getElementById('approvalStatus').value === 'Approved',
                 isActive: document.getElementById('isActive').checked,
                 isAIGenerated: false,
                 isUnique: false
