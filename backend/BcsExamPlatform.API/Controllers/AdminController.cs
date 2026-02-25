@@ -737,7 +737,21 @@ public class AdminController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(new { message = $"Error generating AI questions for exam: {ex.Message}" });
+            // Log the full exception for debugging
+            Console.WriteLine($"AI Generation Error: {ex.Message}");
+            Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+            
+            // Return user-friendly error message
+            var errorMessage = ex.Message;
+            if (ex.InnerException != null)
+            {
+                errorMessage += $" Inner: {ex.InnerException.Message}";
+            }
+            
+            return BadRequest(new { 
+                message = $"Error generating AI questions: {errorMessage}",
+                details = ex.GetType().Name
+            });
         }
     }
 

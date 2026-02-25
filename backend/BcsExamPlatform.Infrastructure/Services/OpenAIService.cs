@@ -28,33 +28,60 @@ public class OpenAIService : IOpenAIService
         int count,
         string language = "English")
     {
-        var prompt = BuildPrompt(subject, topic, difficulty, count, language);
-        
-        var requestBody = new
+        try
         {
-            model = _model,
-            messages = new[]
+            var prompt = BuildPrompt(subject, topic, difficulty, count, language);
+            
+            var requestBody = new
             {
-                new { role = "system", content = "You are an expert BCS exam question generator. Generate high-quality multiple-choice questions with 4 options each." },
-                new { role = "user", content = prompt }
-            },
-            temperature = 0.7,
-            response_format = new { type = "json_object" }
-        };
+                model = _model,
+                messages = new[]
+                {
+                    new { role = "system", content = "You are an expert BCS exam question generator. Generate high-quality multiple-choice questions with 4 options each." },
+                    new { role = "user", content = prompt }
+                },
+                temperature = 0.7,
+                response_format = new { type = "json_object" }
+            };
 
-        var content = new StringContent(
-            JsonSerializer.Serialize(requestBody),
-            Encoding.UTF8,
-            "application/json"
-        );
+            var content = new StringContent(
+                JsonSerializer.Serialize(requestBody),
+                Encoding.UTF8,
+                "application/json"
+            );
 
-        var response = await _httpClient.PostAsync("https://api.openai.com/v1/chat/completions", content);
-        response.EnsureSuccessStatusCode();
+            var response = await _httpClient.PostAsync("https://api.openai.com/v1/chat/completions", content);
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new Exception($"OpenAI API Error ({response.StatusCode}): {errorContent}");
+            }
 
-        var responseBody = await response.Content.ReadAsStringAsync();
-        var result = JsonSerializer.Deserialize<OpenAIResponse>(responseBody);
+            var responseBody = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<OpenAIResponse>(responseBody);
 
-        return ParseQuestions(result?.Choices?[0]?.Message?.Content ?? "{}");
+            var questions = ParseQuestions(result?.Choices?[0]?.Message?.Content ?? "{}");
+            
+            if (questions.Count == 0)
+            {
+                throw new Exception("OpenAI returned no questions. Response may be in wrong format.");
+            }
+
+            return questions;
+        }
+        catch (HttpRequestException ex)
+        {
+            throw new Exception($"Network error calling OpenAI API: {ex.Message}. Check your internet connection.", ex);
+        }
+        catch (Exception ex) when (ex.Message.Contains("API Key"))
+        {
+            throw new Exception("Invalid OpenAI API Key. Please check your configuration.", ex);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Error generating questions: {ex.Message}", ex);
+        }
     }
 
     private string BuildPrompt(string subject, string topic, string difficulty, int count, string language)
