@@ -1,5 +1,6 @@
 using BcsExamPlatform.API.DTOs;
 using BcsExamPlatform.Core.Entities;
+using BcsExamPlatform.Core.Enums;
 using BcsExamPlatform.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -41,7 +42,7 @@ public class AdminController : ControllerBase
             SourceReference = dto.SourceReference,
             IsAIGenerated = dto.IsAIGenerated,
             IsUnique = dto.IsUnique,
-            IsApproved = dto.IsApproved,
+            ApprovalStatus = dto.ApprovalStatus,
             IsActive = true,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
@@ -158,8 +159,8 @@ public class AdminController : ControllerBase
     [HttpGet("questions")]
     public async Task<ActionResult<List<QuestionListDTO>>> GetQuestions(
         [FromQuery] Guid? subjectId = null,
-        [FromQuery] string? difficulty = null,
-        [FromQuery] bool? isApproved = null,
+        [FromQuery] DifficultyLevel? difficulty = null,
+        [FromQuery] ApprovalStatus? approvalStatus = null,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 50)
     {
@@ -174,14 +175,14 @@ public class AdminController : ControllerBase
             query = query.Where(q => q.SubjectId == subjectId.Value);
         }
 
-        if (!string.IsNullOrEmpty(difficulty))
+        if (difficulty.HasValue)
         {
-            query = query.Where(q => q.DifficultyLevel == difficulty);
+            query = query.Where(q => q.DifficultyLevel == difficulty.Value);
         }
 
-        if (isApproved.HasValue)
+        if (approvalStatus.HasValue)
         {
-            query = query.Where(q => q.IsApproved == isApproved.Value);
+            query = query.Where(q => q.ApprovalStatus == approvalStatus.Value);
         }
 
         var totalCount = await query.CountAsync();
@@ -198,7 +199,7 @@ public class AdminController : ControllerBase
             SubjectName = q.Subject.SubjectNameEnglish,
             TopicName = q.Topic.TopicNameEnglish,
             DifficultyLevel = q.DifficultyLevel,
-            IsApproved = q.IsApproved,
+            ApprovalStatus = q.ApprovalStatus,
             OptionsCount = q.Options.Count,
             CreatedAt = q.CreatedAt
         }).ToList();
@@ -242,9 +243,8 @@ public class AdminController : ControllerBase
             SourceYear = question.SourceYear,
             SourceReference = question.SourceReference,
             IsAIGenerated = question.IsAIGenerated,
-            IsApproved = question.IsApproved,
+            ApprovalStatus = question.ApprovalStatus,
             IsActive = question.IsActive,
-            ApprovalStatus = question.IsApproved ? "Approved" : "Created",
             Options = question.Options.Select(o => new QuestionOptionDetailDTO
             {
                 OptionId = o.OptionId,
@@ -280,7 +280,7 @@ public class AdminController : ControllerBase
         question.SourceType = dto.SourceType;
         question.SourceYear = dto.SourceYear;
         question.SourceReference = dto.SourceReference;
-        question.IsApproved = dto.IsApproved;
+        question.ApprovalStatus = dto.ApprovalStatus;
         question.IsActive = dto.IsActive;
         question.UpdatedAt = DateTime.UtcNow;
 
@@ -394,8 +394,8 @@ public class AdminController : ControllerBase
             // Get easy questions
             var easyQuestions = await _context.Questions
                 .Where(q => q.SubjectId == distribution.SubjectId)
-                .Where(q => q.DifficultyLevel == "Easy")
-                .Where(q => q.IsApproved && q.IsActive)
+                .Where(q => q.DifficultyLevel == DifficultyLevel.Easy)
+                .Where(q => q.ApprovalStatus == ApprovalStatus.Approved && q.IsActive)
                 .OrderBy(q => Guid.NewGuid())
                 .Take(distribution.EasyQuestions)
                 .ToListAsync();
@@ -403,8 +403,8 @@ public class AdminController : ControllerBase
             // Get intermediate questions
             var intermediateQuestions = await _context.Questions
                 .Where(q => q.SubjectId == distribution.SubjectId)
-                .Where(q => q.DifficultyLevel == "Intermediate")
-                .Where(q => q.IsApproved && q.IsActive)
+                .Where(q => q.DifficultyLevel == DifficultyLevel.Intermediate)
+                .Where(q => q.ApprovalStatus == ApprovalStatus.Approved && q.IsActive)
                 .OrderBy(q => Guid.NewGuid())
                 .Take(distribution.IntermediateQuestions)
                 .ToListAsync();
@@ -412,8 +412,8 @@ public class AdminController : ControllerBase
             // Get hard questions
             var hardQuestions = await _context.Questions
                 .Where(q => q.SubjectId == distribution.SubjectId)
-                .Where(q => q.DifficultyLevel == "Hard")
-                .Where(q => q.IsApproved && q.IsActive)
+                .Where(q => q.DifficultyLevel == DifficultyLevel.Hard)
+                .Where(q => q.ApprovalStatus == ApprovalStatus.Approved && q.IsActive)
                 .OrderBy(q => Guid.NewGuid())
                 .Take(distribution.HardQuestions)
                 .ToListAsync();
@@ -621,9 +621,9 @@ public class AdminController : ControllerBase
             var generatedQuestions = await _openAIService.GenerateQuestionsAsync(
                 subject.SubjectNameEnglish,
                 topic.TopicNameEnglish,
-                dto.DifficultyLevel,
+                dto.DifficultyLevel.ToString(),
                 dto.Count,
-                dto.Language
+                dto.Language.ToString()
             );
 
             if (generatedQuestions.Count == 0)
@@ -635,18 +635,19 @@ public class AdminController : ControllerBase
             var savedQuestions = new List<Guid>();
             foreach (var genQ in generatedQuestions)
             {
+                var languageStr = dto.Language.ToString();
                 var question = new Question
                 {
                     QuestionId = Guid.NewGuid(),
                     SubjectId = dto.SubjectId,
                     TopicId = dto.TopicId,
-                    QuestionTextBangla = dto.Language == "Bangla" ? genQ.QuestionText : "",
-                    QuestionTextEnglish = dto.Language == "English" ? genQ.QuestionText : genQ.QuestionText,
+                    QuestionTextBangla = dto.Language == LanguageMode.Bangla ? genQ.QuestionText : "",
+                    QuestionTextEnglish = dto.Language == LanguageMode.English || dto.Language == LanguageMode.Bilingual ? genQ.QuestionText : genQ.QuestionText,
                     DifficultyLevel = dto.DifficultyLevel,
                     Marks = 1.00m,
-                    SourceType = "AI Generated",
+                    SourceType = SourceType.AIGenerated,
                     IsAIGenerated = true,
-                    IsApproved = dto.AutoApprove,
+                    ApprovalStatus = dto.AutoApprove ? ApprovalStatus.Approved : ApprovalStatus.Created,
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
@@ -657,8 +658,8 @@ public class AdminController : ControllerBase
                 {
                     OptionId = Guid.NewGuid(),
                     QuestionId = question.QuestionId,
-                    OptionTextBangla = dto.Language == "Bangla" ? opt : "",
-                    OptionTextEnglish = dto.Language == "English" ? opt : opt,
+                    OptionTextBangla = dto.Language == LanguageMode.Bangla ? opt : "",
+                    OptionTextEnglish = dto.Language == LanguageMode.English || dto.Language == LanguageMode.Bilingual ? opt : opt,
                     OptionOrder = index + 1,
                     IsCorrect = index == genQ.CorrectOptionIndex,
                     CreatedAt = DateTime.UtcNow
@@ -669,8 +670,8 @@ public class AdminController : ControllerBase
                 {
                     ExplanationId = Guid.NewGuid(),
                     QuestionId = question.QuestionId,
-                    ExplanationBangla = dto.Language == "Bangla" ? genQ.Explanation : "",
-                    ExplanationEnglish = dto.Language == "English" ? genQ.Explanation : genQ.Explanation,
+                    ExplanationBangla = dto.Language == LanguageMode.Bangla ? genQ.Explanation : "",
+                    ExplanationEnglish = dto.Language == LanguageMode.English || dto.Language == LanguageMode.Bilingual ? genQ.Explanation : genQ.Explanation,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };

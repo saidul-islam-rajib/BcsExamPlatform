@@ -1,3 +1,5 @@
+using BcsExamPlatform.Core.Enums;
+
 namespace BcsExamPlatform.Core.Entities;
 
 public class Question
@@ -13,21 +15,21 @@ public class Question
     public bool HasMathContent { get; set; }
 
     // Metadata
-    public string DifficultyLevel { get; set; } = "Easy"; // Easy, Intermediate, Hard
+    public DifficultyLevel DifficultyLevel { get; set; } = DifficultyLevel.Easy;
     public decimal Marks { get; set; } = 1.00m;
 
     // Source Information
-    public string SourceType { get; set; } = string.Empty;
+    public SourceType SourceType { get; set; } = SourceType.Manual;
     public int? SourceYear { get; set; }
     public string? SourceReference { get; set; }
     public bool IsAIGenerated { get; set; }
     public bool IsUnique { get; set; }
 
     // Status
-    public bool IsApproved { get; set; }
+    public ApprovalStatus ApprovalStatus { get; set; } = ApprovalStatus.Created;
     public Guid? ApprovedBy { get; set; }
     public DateTime? ApprovedAt { get; set; }
-    public bool IsActive { get; set; }
+    public bool IsActive { get; set; } = true;
 
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }

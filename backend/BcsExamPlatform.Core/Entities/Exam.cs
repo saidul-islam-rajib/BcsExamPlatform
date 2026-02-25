@@ -1,3 +1,5 @@
+using BcsExamPlatform.Core.Enums;
+
 namespace BcsExamPlatform.Core.Entities;
 
 public class Exam
@@ -13,7 +15,7 @@ public class Exam
     public decimal TotalMarks { get; set; } = 200.00m;
 
     // Language Settings
-    public string LanguageMode { get; set; } = "Bilingual"; // Bangla, English, Bilingual
+    public LanguageMode LanguageMode { get; set; } = LanguageMode.Bilingual;
 
     // Access Control
     public bool IsPaid { get; set; }
