@@ -312,6 +312,8 @@
                 <option value="true">Approved</option>
                 <option value="false">Pending</option>
             </select>
+            <button class="btn" onclick="window.location.href='create-question.html'"
+                style="background: #28a745; color: white;">+ Create Question</button>
             <button class="btn" onclick="loadQuestions()">Refresh</button>
             <button class="btn" onclick="window.location.href='generate-ai-questions.html'"
                 style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">🤖 Generate AI Questions</button>
@@ -483,6 +485,7 @@
                         <td style="font-size: 13px; color: #666;">${q.examName || '-'}</td>
                         <td><span class="badge badge-${statusClass}">${q.isApproved ? 'Approved' : 'Pending'}</span></td>
                         <td>
+                            <button class="btn" onclick="event.stopPropagation(); window.location.href='create-question.html?questionId=${q.questionId}'" style="padding: 6px 12px; font-size: 12px; background: #007bff; color: white; margin-right: 5px;">Edit</button>
                             <button class="btn btn-danger" onclick="event.stopPropagation(); deleteQuestion('${q.questionId}')" style="padding: 6px 12px; font-size: 12px;">Delete</button>
                         </td>
                     `;

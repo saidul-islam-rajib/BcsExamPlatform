@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create/Edit Question - BCS Exam Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .back-link {
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        .form-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group label .required {
+            color: #dc3545;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 5px;
+            color: #666;
+            font-size: 12px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .options-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .options-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .option-item {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 15px;
+            align-items: center;
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .option-item input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .option-item input[type="text"] {
+            flex: 1;
+        }
+
+        .option-item .option-label {
+            font-weight: 600;
+            color: #667eea;
+            min-width: 70px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 6px;
+            color: white;
+            z-index: 2000;
+            animation: slideIn 0.3s;
+            min-width: 300px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .toast.success {
+            background: #28a745;
+        }
+
+        .toast.error {
+            background: #dc3545;
+        }
+
+        .toast.info {
+            background: #17a2b8;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin: 30px 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="questions.html" class="back-link">← Back to Questions</a>
+            <h1 id="pageTitle">Create New Question</h1>
+            <p>Fill in the details below to create a new question for the question bank</p>
+        </div>
+
+        <div class="form-card">
+            <form id="questionForm" onsubmit="saveQuestion(event)">
+                <input type="hidden" id="questionId">
+
+                <div class="section-title">Basic Information</div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Subject <span class="required">*</span></label>
+                        <select id="subjectId" required>
+                            <option value="">Select Subject</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Topic <span class="required">*</span></label>
+                        <select id="topicId" required>
+                            <option value="">Select Topic</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Difficulty Level <span class="required">*</span></label>
+                        <select id="difficultyLevel" required>
+                            <option value="Easy">Easy</option>
+                            <option value="Intermediate">Intermediate</option>
+                            <option value="Hard">Hard</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Marks <span class="required">*</span></label>
+                        <input type="number" id="marks" value="1" min="0.25" step="0.25" required>
+                    </div>
+                </div>
+
+                <div class="section-title">Question Text</div>
+
+                <div class="form-group">
+                    <label>Question (English) <span class="required">*</span></label>
+                    <textarea id="questionTextEnglish" required placeholder="Enter the question in English"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Question (Bangla)</label>
+                    <textarea id="questionTextBangla" placeholder="Enter the question in Bangla (optional)"></textarea>
+                    <small>Leave blank to use English text for both languages</small>
+                </div>
+
+                <div class="section-title">Answer Options</div>
+
+                <div class="options-section">
+                    <h3>Select the correct answer by clicking the radio button</h3>
+                    <div class="option-item">
+                        <input type="radio" name="correctOption" value="0" id="correct0" required>
+                        <span class="option-label">Option A:</span>
+                        <input type="text" id="option0" placeholder="Enter option A" required>
+                    </div>
+                    <div class="option-item">
+                        <input type="radio" name="correctOption" value="1" id="correct1" required>
+                        <span class="option-label">Option B:</span>
+                        <input type="text" id="option1" placeholder="Enter option B" required>
+                    </div>
+                    <div class="option-item">
+                        <input type="radio" name="correctOption" value="2" id="correct2" required>
+                        <span class="option-label">Option C:</span>
+                        <input type="text" id="option2" placeholder="Enter option C" required>
+                    </div>
+                    <div class="option-item">
+                        <input type="radio" name="correctOption" value="3" id="correct3" required>
+                        <span class="option-label">Option D:</span>
+                        <input type="text" id="option3" placeholder="Enter option D" required>
+                    </div>
+                </div>
+
+                <div class="section-title">Explanation</div>
+
+                <div class="form-group">
+                    <label>Explanation (English)</label>
+                    <textarea id="explanationEnglish" placeholder="Explain why the correct answer is right"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Explanation (Bangla)</label>
+                    <textarea id="explanationBangla" placeholder="Explanation in Bangla (optional)"></textarea>
+                    <small>Leave blank to use English explanation for both languages</small>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="window.location.href='questions.html'">Cancel</button>
+                    <button type="submit" class="btn btn-success" id="submitBtn">Create Question</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:2781/api';
+        let isEditMode = false;
+
+        // Get question ID from URL if editing
+        const urlParams = new URLSearchParams(window.location.search);
+        const questionIdParam = urlParams.get('questionId');
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadSubjects();
+
+            if (questionIdParam) {
+                isEditMode = true;
+                document.getElementById('pageTitle').textContent = 'Edit Question';
+                document.getElementById('submitBtn').textContent = 'Update Question';
+                await loadQuestionData(questionIdParam);
+            }
+        });
+
+        async function loadSubjects() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/subjects`);
+                const subjects = await response.json();
+
+                const select = document.getElementById('subjectId');
+                subjects.forEach(subject => {
+                    const option = document.createElement('option');
+                    option.value = subject.subjectId;
+                    option.textContent = subject.subjectNameEnglish;
+                    select.appendChild(option);
+                });
+
+                // Load topics when subject changes
+                select.addEventListener('change', async (e) => {
+                    const subjectId = e.target.value;
+                    if (subjectId) {
+                        await loadTopics(subjectId);
+                    } else {
+                        document.getElementById('topicId').innerHTML = '<option value="">Select Topic</option>';
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading subjects:', error);
+                showToast('Error loading subjects', 'error');
+            }
+        }
+
+        async function loadTopics(subjectId) {
+            try {
+                const response = await fetch(`${API_BASE}/admin/subjects/${subjectId}/topics`);
+                const topics = await response.json();
+
+                const select = document.getElementById('topicId');
+                select.innerHTML = '<option value="">Select Topic</option>';
+
+                topics.forEach(topic => {
+                    const option = document.createElement('option');
+                    option.value = topic.topicId;
+                    option.textContent = topic.topicNameEnglish;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading topics:', error);
+                showToast('Error loading topics', 'error');
+            }
+        }
+
+        async function loadQuestionData(questionId) {
+            try {
+                showToast('Loading question data...', 'info');
+
+                const response = await fetch(`${API_BASE}/admin/questions/${questionId}`);
+                if (!response.ok) throw new Error('Question not found');
+
+                const question = await response.json();
+
+                // Fill form with question data
+                document.getElementById('questionId').value = question.questionId;
+                document.getElementById('subjectId').value = question.subjectId;
+
+                // Load topics for the selected subject
+                await loadTopics(question.subjectId);
+                document.getElementById('topicId').value = question.topicId;
+
+                document.getElementById('difficultyLevel').value = question.difficultyLevel;
+                document.getElementById('marks').value = question.marks;
+                document.getElementById('questionTextEnglish').value = question.questionTextEnglish;
+                document.getElementById('questionTextBangla').value = question.questionTextBangla;
+
+                // Fill options
+                question.options.forEach((option, index) => {
+                    document.getElementById(`option${index}`).value = option.optionTextEnglish;
+                    if (option.isCorrect) {
+                        document.getElementById(`correct${index}`).checked = true;
+                    }
+                });
+
+                // Fill explanations
+                document.getElementById('explanationEnglish').value = question.explanationEnglish || '';
+                document.getElementById('explanationBangla').value = question.explanationBangla || '';
+
+                showToast('Question loaded successfully', 'success');
+            } catch (error) {
+                console.error('Error loading question:', error);
+                showToast('Error loading question data', 'error');
+                setTimeout(() => window.location.href = 'questions.html', 2000);
+            }
+        }
+
+        async function saveQuestion(event) {
+            event.preventDefault();
+
+            const questionTextBangla = document.getElementById('questionTextBangla').value;
+            const questionTextEnglish = document.getElementById('questionTextEnglish').value;
+            const explanationBangla = document.getElementById('explanationBangla').value;
+            const explanationEnglish = document.getElementById('explanationEnglish').value;
+
+            const questionData = {
+                subjectId: document.getElementById('subjectId').value,
+                topicId: document.getElementById('topicId').value,
+                questionTextBangla: questionTextBangla || questionTextEnglish,
+                questionTextEnglish: questionTextEnglish,
+                difficultyLevel: document.getElementById('difficultyLevel').value,
+                marks: parseFloat(document.getElementById('marks').value),
+                sourceType: 'Manual',
+                isApproved: true,
+                isAIGenerated: false,
+                isUnique: false
+            };
+
+            try {
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.disabled = true;
+                submitBtn.textContent = isEditMode ? 'Updating...' : 'Creating...';
+
+                let questionId;
+
+                if (isEditMode) {
+                    // Update existing question
+                    questionId = document.getElementById('questionId').value;
+                    const response = await fetch(`${API_BASE}/admin/questions/${questionId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(questionData)
+                    });
+
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.message || 'Error updating question');
+                    }
+                } else {
+                    // Create new question
+                    const response = await fetch(`${API_BASE}/admin/questions`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(questionData)
+                    });
+
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.message || 'Error creating question');
+                    }
+
+                    const result = await response.json();
+                    questionId = result.questionId;
+                }
+
+                // Add/Update options
+                const correctIndex = parseInt(document.querySelector('input[name="correctOption"]:checked').value);
+                const options = [];
+                for (let i = 0; i < 4; i++) {
+                    const optionText = document.getElementById(`option${i}`).value;
+                    options.push({
+                        optionTextBangla: optionText,
+                        optionTextEnglish: optionText,
+                        isCorrect: i === correctIndex
+                    });
+                }
+
+                await fetch(`${API_BASE}/admin/questions/${questionId}/options`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(options)
+                });
+
+                // Add/Update explanation
+                if (explanationEnglish || explanationBangla) {
+                    const explanation = {
+                        explanationBangla: explanationBangla || explanationEnglish,
+                        explanationEnglish: explanationEnglish
+                    };
+
+                    await fetch(`${API_BASE}/admin/questions/${questionId}/explanation`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(explanation)
+                    });
+                }
+
+                showToast(isEditMode ? 'Question updated successfully!' : 'Question created successfully!', 'success');
+
+                setTimeout(() => {
+                    window.location.href = 'questions.html';
+                }, 1500);
+
+            } catch (error) {
+                console.error('Error saving question:', error);
+                showToast(error.message || 'Error saving question', 'error');
+
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.disabled = false;
+                submitBtn.textContent = isEditMode ? 'Update Question' : 'Create Question';
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    </script>
+</body>
+
+</html>
