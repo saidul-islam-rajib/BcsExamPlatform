@@ -17,8 +17,16 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Register OpenAI Service
-builder.Services.AddHttpClient<BcsExamPlatform.Core.Services.IOpenAIService, BcsExamPlatform.Infrastructure.Services.OpenAIService>();
+// Register AI Service based on configuration
+var aiProvider = builder.Configuration["AIProvider"] ?? "OpenAI";
+if (aiProvider == "Gemini")
+{
+    builder.Services.AddHttpClient<BcsExamPlatform.Core.Services.IOpenAIService, BcsExamPlatform.Infrastructure.Services.GeminiService>();
+}
+else
+{
+    builder.Services.AddHttpClient<BcsExamPlatform.Core.Services.IOpenAIService, BcsExamPlatform.Infrastructure.Services.OpenAIService>();
+}
 
 // JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
