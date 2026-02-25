@@ -298,6 +298,24 @@
                     </div>
                 </div>
 
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="isApproved" style="width: auto; margin: 0;">
+                            <span>Approved for Use</span>
+                        </label>
+                        <small>Only approved questions can be used in exams</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="isActive" style="width: auto; margin: 0;">
+                            <span>Active</span>
+                        </label>
+                        <small>Inactive questions are hidden from the system</small>
+                    </div>
+                </div>
+
                 <div class="section-title">Question Text</div>
 
                 <div class="form-group">
@@ -375,6 +393,10 @@
                 document.getElementById('pageTitle').textContent = 'Edit Question';
                 document.getElementById('submitBtn').textContent = 'Update Question';
                 await loadQuestionData(questionIdParam);
+            } else {
+                // Set default values for new question
+                document.getElementById('isApproved').checked = true;
+                document.getElementById('isActive').checked = true;
             }
         });
 
@@ -453,6 +475,10 @@
                 document.getElementById('questionTextEnglish').value = question.questionTextEnglish || '';
                 document.getElementById('questionTextBangla').value = question.questionTextBangla || '';
 
+                // Set status checkboxes
+                document.getElementById('isApproved').checked = question.isApproved || false;
+                document.getElementById('isActive').checked = question.isActive !== false; // Default to true
+
                 // Fill options - sort by optionOrder first
                 if (question.options && Array.isArray(question.options) && question.options.length > 0) {
                     console.log('Processing options:', question.options);
@@ -510,7 +536,8 @@
                 difficultyLevel: document.getElementById('difficultyLevel').value,
                 marks: parseFloat(document.getElementById('marks').value),
                 sourceType: 'Manual',
-                isApproved: true,
+                isApproved: document.getElementById('isApproved').checked,
+                isActive: document.getElementById('isActive').checked,
                 isAIGenerated: false,
                 isUnique: false
             };
@@ -571,17 +598,19 @@
                 });
 
                 // Add/Update explanation
-                if (explanationEnglish || explanationBangla) {
-                    const explanation = {
-                        explanationBangla: explanationBangla || explanationEnglish,
-                        explanationEnglish: explanationEnglish
-                    };
+                const explanation = {
+                    explanationBangla: explanationBangla || explanationEnglish || '',
+                    explanationEnglish: explanationEnglish || ''
+                };
 
-                    await fetch(`${API_BASE}/admin/questions/${questionId}/explanation`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(explanation)
-                    });
+                const explanationResponse = await fetch(`${API_BASE}/admin/questions/${questionId}/explanation`, {
+                    method: isEditMode ? 'PUT' : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(explanation)
+                });
+
+                if (!explanationResponse.ok) {
+                    console.warn('Failed to save explanation, but question was saved');
                 }
 
                 showToast(isEditMode ? 'Question updated successfully!' : 'Question created successfully!', 'success');

@@ -33,6 +33,7 @@ public class UpdateQuestionDTO
     public int? SourceYear { get; set; }
     public string? SourceReference { get; set; }
     public bool IsApproved { get; set; }
+    public bool IsActive { get; set; } = true;
 }
 
 public class CreateQuestionOptionDTO
@@ -82,6 +83,7 @@ public class QuestionDetailDTO
     public string? SourceReference { get; set; }
     public bool IsAIGenerated { get; set; }
     public bool IsApproved { get; set; }
+    public bool IsActive { get; set; }
     public List<QuestionOptionDetailDTO> Options { get; set; } = new();
     public string ExplanationBangla { get; set; } = string.Empty;
     public string ExplanationEnglish { get; set; } = string.Empty;
