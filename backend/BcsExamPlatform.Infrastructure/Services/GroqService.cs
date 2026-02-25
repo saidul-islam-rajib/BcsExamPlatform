@@ -117,11 +117,22 @@ Return ONLY valid JSON in this exact format (no markdown, no code blocks):
     {
         try
         {
+            // Clean up the response - remove markdown, explanatory text, etc.
             jsonContent = jsonContent.Trim();
-            if (jsonContent.StartsWith("```json")) jsonContent = jsonContent.Substring(7);
-            if (jsonContent.StartsWith("```")) jsonContent = jsonContent.Substring(3);
-            if (jsonContent.EndsWith("```")) jsonContent = jsonContent.Substring(0, jsonContent.Length - 3);
-            jsonContent = jsonContent.Trim();
+            
+            // Remove everything before the first {
+            int firstBrace = jsonContent.IndexOf('{');
+            if (firstBrace > 0)
+            {
+                jsonContent = jsonContent.Substring(firstBrace);
+            }
+            
+            // Remove everything after the last }
+            int lastBrace = jsonContent.LastIndexOf('}');
+            if (lastBrace >= 0 && lastBrace < jsonContent.Length - 1)
+            {
+                jsonContent = jsonContent.Substring(0, lastBrace + 1);
+            }
 
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             var wrapper = JsonSerializer.Deserialize<QuestionWrapper>(jsonContent, options);

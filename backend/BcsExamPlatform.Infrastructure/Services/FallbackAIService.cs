@@ -18,18 +18,7 @@ public class FallbackAIService : IOpenAIService
         _logger = logger;
         _services = new List<(string, IOpenAIService)>();
 
-        // Initialize all available services
-        try
-        {
-            var geminiKey = configuration["Gemini:ApiKey"];
-            if (!string.IsNullOrEmpty(geminiKey) && geminiKey != "YOUR_GEMINI_API_KEY_HERE")
-            {
-                _services.Add(("Gemini", new GeminiService(configuration, httpClientFactory.CreateClient())));
-                _logger?.LogInformation("Gemini service initialized");
-            }
-        }
-        catch { }
-
+        // Initialize all available services - Groq first since it's most reliable
         try
         {
             var groqKey = configuration["Groq:ApiKey"];
@@ -37,6 +26,17 @@ public class FallbackAIService : IOpenAIService
             {
                 _services.Add(("Groq", new GroqService(configuration, httpClientFactory.CreateClient())));
                 _logger?.LogInformation("Groq service initialized");
+            }
+        }
+        catch { }
+
+        try
+        {
+            var geminiKey = configuration["Gemini:ApiKey"];
+            if (!string.IsNullOrEmpty(geminiKey) && geminiKey != "YOUR_GEMINI_API_KEY_HERE")
+            {
+                _services.Add(("Gemini", new GeminiService(configuration, httpClientFactory.CreateClient())));
+                _logger?.LogInformation("Gemini service initialized");
             }
         }
         catch { }
