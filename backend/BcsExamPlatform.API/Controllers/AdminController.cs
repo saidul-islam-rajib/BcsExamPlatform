@@ -12,10 +12,12 @@ namespace BcsExamPlatform.API.Controllers;
 public class AdminController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
+    private readonly BcsExamPlatform.Core.Services.IOpenAIService? _openAIService;
 
-    public AdminController(ApplicationDbContext context)
+    public AdminController(ApplicationDbContext context, BcsExamPlatform.Core.Services.IOpenAIService? openAIService = null)
     {
         _context = context;
+        _openAIService = openAIService;
     }
 
     // Question Management
@@ -418,6 +420,23 @@ public class AdminController : ControllerBase
         return Ok(new { message = "Exam published successfully" });
     }
 
+    [HttpPut("exams/{examId}/unpublish")]
+    public async Task<ActionResult> UnpublishExam(Guid examId)
+    {
+        var exam = await _context.Exams.FindAsync(examId);
+        if (exam == null)
+        {
+            return NotFound(new { message = "Exam not found" });
+        }
+
+        exam.IsPublished = false;
+        exam.UpdatedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Exam unpublished successfully" });
+    }
+
+
     [HttpGet("exams")]
     public async Task<ActionResult<List<ExamListAdminDTO>>> GetAllExams()
     {
@@ -439,6 +458,338 @@ public class AdminController : ControllerBase
         }).ToList();
 
         return Ok(examDTOs);
+    }
+
+    [HttpGet("exams/{examId}/questions")]
+    public async Task<ActionResult> GetExamQuestions(Guid examId)
+    {
+        var exam = await _context.Exams.FindAsync(examId);
+        if (exam == null)
+        {
+            return NotFound(new { message = "Exam not found" });
+        }
+
+        var examQuestions = await _context.ExamQuestions
+            .Where(eq => eq.ExamId == examId)
+            .Include(eq => eq.Question)
+                .ThenInclude(q => q.Subject)
+            .Include(eq => eq.Question)
+                .ThenInclude(q => q.Topic)
+            .OrderBy(eq => eq.QuestionNumber)
+            .Select(eq => new
+            {
+                questionId = eq.QuestionId,
+                questionNumber = eq.QuestionNumber,
+                questionTextEnglish = eq.Question.QuestionTextEnglish,
+                questionTextBangla = eq.Question.QuestionTextBangla,
+                subjectName = eq.Question.Subject.SubjectNameEnglish,
+                topicName = eq.Question.Topic.TopicNameEnglish,
+                difficultyLevel = eq.Question.DifficultyLevel,
+                marks = eq.Question.Marks
+            })
+            .ToListAsync();
+
+        return Ok(new
+        {
+            examId = examId,
+            examName = exam.ExamNameEnglish,
+            totalQuestions = examQuestions.Count,
+            questions = examQuestions
+        });
+    }
+
+    // AI Question Generation (for general question bank)
+    [HttpPost("questions/generate-ai")]
+    public async Task<ActionResult> GenerateAIQuestions([FromBody] GenerateAIQuestionsDTO dto)
+    {
+        if (_openAIService == null)
+        {
+            return BadRequest(new { message = "OpenAI service is not configured. Please add your API key to appsettings.Development.json" });
+        }
+
+        try
+        {
+            var subject = await _context.Subjects.FindAsync(dto.SubjectId);
+            var topic = await _context.Topics.FindAsync(dto.TopicId);
+
+            if (subject == null || topic == null)
+            {
+                return BadRequest(new { message = "Invalid subject or topic" });
+            }
+
+            // Generate questions using OpenAI
+            var generatedQuestions = await _openAIService.GenerateQuestionsAsync(
+                subject.SubjectNameEnglish,
+                topic.TopicNameEnglish,
+                dto.DifficultyLevel,
+                dto.Count,
+                dto.Language
+            );
+
+            if (generatedQuestions.Count == 0)
+            {
+                return BadRequest(new { message = "Failed to generate questions. Please try again." });
+            }
+
+            // Save questions to database
+            var savedQuestions = new List<Guid>();
+            foreach (var genQ in generatedQuestions)
+            {
+                var question = new Question
+                {
+                    QuestionId = Guid.NewGuid(),
+                    SubjectId = dto.SubjectId,
+                    TopicId = dto.TopicId,
+                    QuestionTextBangla = dto.Language == "Bangla" ? genQ.QuestionText : "",
+                    QuestionTextEnglish = dto.Language == "English" ? genQ.QuestionText : genQ.QuestionText,
+                    DifficultyLevel = dto.DifficultyLevel,
+                    Marks = 1.00m,
+                    SourceType = "AI Generated",
+                    IsAIGenerated = true,
+                    IsApproved = dto.AutoApprove,
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                // Add options
+                question.Options = genQ.Options.Select((opt, index) => new QuestionOption
+                {
+                    OptionId = Guid.NewGuid(),
+                    QuestionId = question.QuestionId,
+                    OptionTextBangla = dto.Language == "Bangla" ? opt : "",
+                    OptionTextEnglish = dto.Language == "English" ? opt : opt,
+                    OptionOrder = index + 1,
+                    IsCorrect = index == genQ.CorrectOptionIndex,
+                    CreatedAt = DateTime.UtcNow
+                }).ToList();
+
+                // Add explanation
+                question.Explanation = new QuestionExplanation
+                {
+                    ExplanationId = Guid.NewGuid(),
+                    QuestionId = question.QuestionId,
+                    ExplanationBangla = dto.Language == "Bangla" ? genQ.Explanation : "",
+                    ExplanationEnglish = dto.Language == "English" ? genQ.Explanation : genQ.Explanation,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                _context.Questions.Add(question);
+                savedQuestions.Add(question.QuestionId);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = $"Successfully generated {savedQuestions.Count} AI questions",
+                questionIds = savedQuestions,
+                count = savedQuestions.Count
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = $"Error generating AI questions: {ex.Message}" });
+        }
+    }
+
+    // AI Question Generation for Specific Exam
+    [HttpPost("exams/{examId}/generate-ai-questions")]
+    public async Task<ActionResult> GenerateAIQuestionsForExam(Guid examId)
+    {
+        if (_openAIService == null)
+        {
+            return BadRequest(new { message = "OpenAI service is not configured. Please add your API key to appsettings.Development.json" });
+        }
+
+        try
+        {
+            var exam = await _context.Exams
+                .Include(e => e.SubjectDistributions)
+                .FirstOrDefaultAsync(e => e.ExamId == examId);
+
+            if (exam == null)
+            {
+                return NotFound(new { message = "Exam not found" });
+            }
+
+            if (exam.SubjectDistributions == null || !exam.SubjectDistributions.Any())
+            {
+                return BadRequest(new { message = "Exam has no subject distribution defined" });
+            }
+
+            // Remove existing exam questions
+            var existingQuestions = await _context.ExamQuestions
+                .Where(eq => eq.ExamId == examId)
+                .ToListAsync();
+            _context.ExamQuestions.RemoveRange(existingQuestions);
+
+            int questionNumber = 1;
+            var examQuestions = new List<ExamQuestion>();
+            var totalGenerated = 0;
+
+            // Generate questions for each subject distribution
+            foreach (var distribution in exam.SubjectDistributions)
+            {
+                var subject = await _context.Subjects.FindAsync(distribution.SubjectId);
+                if (subject == null) continue;
+
+                // Get a random topic for this subject
+                var topic = await _context.Topics
+                    .Where(t => t.SubjectId == distribution.SubjectId && t.IsActive)
+                    .OrderBy(t => Guid.NewGuid())
+                    .FirstOrDefaultAsync();
+
+                if (topic == null)
+                {
+                    return BadRequest(new { message = $"No topics found for subject: {subject.SubjectNameEnglish}" });
+                }
+
+                // Generate Easy questions
+                if (distribution.EasyQuestions > 0)
+                {
+                    var easyQuestions = await _openAIService.GenerateQuestionsAsync(
+                        subject.SubjectNameEnglish,
+                        topic.TopicNameEnglish,
+                        "Easy",
+                        distribution.EasyQuestions,
+                        exam.LanguageMode == "Bangla" ? "Bangla" : "English"
+                    );
+
+                    foreach (var genQ in easyQuestions)
+                    {
+                        var question = await SaveGeneratedQuestion(genQ, distribution.SubjectId, topic.TopicId, "Easy", exam.LanguageMode);
+                        examQuestions.Add(new ExamQuestion
+                        {
+                            ExamQuestionId = Guid.NewGuid(),
+                            ExamId = examId,
+                            QuestionId = question.QuestionId,
+                            QuestionNumber = questionNumber++,
+                            DisplayOrder = questionNumber
+                        });
+                        totalGenerated++;
+                    }
+                }
+
+                // Generate Intermediate questions
+                if (distribution.IntermediateQuestions > 0)
+                {
+                    var intermediateQuestions = await _openAIService.GenerateQuestionsAsync(
+                        subject.SubjectNameEnglish,
+                        topic.TopicNameEnglish,
+                        "Intermediate",
+                        distribution.IntermediateQuestions,
+                        exam.LanguageMode == "Bangla" ? "Bangla" : "English"
+                    );
+
+                    foreach (var genQ in intermediateQuestions)
+                    {
+                        var question = await SaveGeneratedQuestion(genQ, distribution.SubjectId, topic.TopicId, "Intermediate", exam.LanguageMode);
+                        examQuestions.Add(new ExamQuestion
+                        {
+                            ExamQuestionId = Guid.NewGuid(),
+                            ExamId = examId,
+                            QuestionId = question.QuestionId,
+                            QuestionNumber = questionNumber++,
+                            DisplayOrder = questionNumber
+                        });
+                        totalGenerated++;
+                    }
+                }
+
+                // Generate Hard questions
+                if (distribution.HardQuestions > 0)
+                {
+                    var hardQuestions = await _openAIService.GenerateQuestionsAsync(
+                        subject.SubjectNameEnglish,
+                        topic.TopicNameEnglish,
+                        "Hard",
+                        distribution.HardQuestions,
+                        exam.LanguageMode == "Bangla" ? "Bangla" : "English"
+                    );
+
+                    foreach (var genQ in hardQuestions)
+                    {
+                        var question = await SaveGeneratedQuestion(genQ, distribution.SubjectId, topic.TopicId, "Hard", exam.LanguageMode);
+                        examQuestions.Add(new ExamQuestion
+                        {
+                            ExamQuestionId = Guid.NewGuid(),
+                            ExamId = examId,
+                            QuestionId = question.QuestionId,
+                            QuestionNumber = questionNumber++,
+                            DisplayOrder = questionNumber
+                        });
+                        totalGenerated++;
+                    }
+                }
+            }
+
+            _context.ExamQuestions.AddRange(examQuestions);
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "AI questions generated and assigned to exam successfully",
+                totalQuestions = totalGenerated,
+                examId = examId
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = $"Error generating AI questions for exam: {ex.Message}" });
+        }
+    }
+
+    private async Task<Question> SaveGeneratedQuestion(
+        BcsExamPlatform.Core.Services.GeneratedQuestion genQ,
+        Guid subjectId,
+        Guid topicId,
+        string difficulty,
+        string languageMode)
+    {
+        var question = new Question
+        {
+            QuestionId = Guid.NewGuid(),
+            SubjectId = subjectId,
+            TopicId = topicId,
+            QuestionTextBangla = languageMode == "Bangla" ? genQ.QuestionText : "",
+            QuestionTextEnglish = languageMode == "English" || languageMode == "Bilingual" ? genQ.QuestionText : genQ.QuestionText,
+            DifficultyLevel = difficulty,
+            Marks = 1.00m,
+            SourceType = "AI Generated",
+            IsAIGenerated = true,
+            IsApproved = true, // Auto-approve for exam generation
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        // Add options
+        question.Options = genQ.Options.Select((opt, index) => new QuestionOption
+        {
+            OptionId = Guid.NewGuid(),
+            QuestionId = question.QuestionId,
+            OptionTextBangla = languageMode == "Bangla" ? opt : "",
+            OptionTextEnglish = languageMode == "English" || languageMode == "Bilingual" ? opt : opt,
+            OptionOrder = index + 1,
+            IsCorrect = index == genQ.CorrectOptionIndex,
+            CreatedAt = DateTime.UtcNow
+        }).ToList();
+
+        // Add explanation
+        question.Explanation = new QuestionExplanation
+        {
+            ExplanationId = Guid.NewGuid(),
+            QuestionId = question.QuestionId,
+            ExplanationBangla = languageMode == "Bangla" ? genQ.Explanation : "",
+            ExplanationEnglish = languageMode == "English" || languageMode == "Bilingual" ? genQ.Explanation : genQ.Explanation,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        _context.Questions.Add(question);
+        return question;
     }
 
     // Seed Sample Data

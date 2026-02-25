@@ -23,7 +23,9 @@ class _ExamDetailsScreenState extends State<ExamDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<ExamBloc>().add(LoadExamDetailsRequested(examId: widget.examId));
+    context
+        .read<ExamBloc>()
+        .add(LoadExamDetailsRequested(examId: widget.examId));
   }
 
   void _startExam() {
@@ -115,7 +117,7 @@ class _ExamDetailsScreenState extends State<ExamDetailsScreen> {
             );
           }
 
-          if (state is ExamDetailsLoaded) {
+          if (state is ExamDetailLoaded) {
             final exam = state.exam;
 
             return SingleChildScrollView(
@@ -205,7 +207,7 @@ class _ExamDetailsScreenState extends State<ExamDetailsScreen> {
                   const SizedBox(height: 16),
 
                   // Subject Distribution
-                  if (state.subjectDistributions.isNotEmpty) ...[
+                  if (exam.subjectDistributions.isNotEmpty) ...[
                     Card(
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
@@ -220,14 +222,14 @@ class _ExamDetailsScreenState extends State<ExamDetailsScreen> {
                               ),
                             ),
                             const SizedBox(height: 16),
-                            ...state.subjectDistributions.map((dist) {
+                            ...exam.subjectDistributions!.map((dist) {
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 12.0),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      dist.subjectNameEnglish,
+                                      dist.subjectName,
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w500,
                                       ),
@@ -279,11 +281,14 @@ class _ExamDetailsScreenState extends State<ExamDetailsScreen> {
                           ),
                           const SizedBox(height: 12),
                           _buildInstruction('Read each question carefully'),
-                          _buildInstruction('Select the best answer from the options'),
-                          _buildInstruction('You can mark questions for review'),
+                          _buildInstruction(
+                              'Select the best answer from the options'),
+                          _buildInstruction(
+                              'You can mark questions for review'),
                           _buildInstruction('Timer will start once you begin'),
                           _buildInstruction('Submit before time runs out'),
-                          _buildInstruction('You can only attempt this exam once'),
+                          _buildInstruction(
+                              'You can only attempt this exam once'),
                         ],
                       ),
                     ),

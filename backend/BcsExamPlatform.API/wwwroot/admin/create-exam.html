@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Exam - BCS Exam Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group label .required {
+            color: #f44336;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group .hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .subject-distribution {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            background: #f9f9f9;
+        }
+
+        .subject-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .subject-header h3 {
+            color: #667eea;
+            font-size: 16px;
+        }
+
+        .btn-remove {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-remove:hover {
+            background: #d32f2f;
+        }
+
+        .difficulty-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            margin-bottom: 20px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .summary-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .summary-item {
+            text-align: center;
+        }
+
+        .summary-item .value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .summary-item .label {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 Create New Exam</h1>
+            <p>Set up a comprehensive exam with questions, timing, and subject distribution</p>
+        </div>
+
+        <div id="messageContainer"></div>
+
+        <form id="examForm">
+            <!-- Basic Information -->
+            <div class="card">
+                <h2>📋 Basic Information</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Exam Name (English) <span class="required">*</span></label>
+                        <input type="text" id="examNameEnglish" required placeholder="e.g., BCS Preliminary Exam 2026">
+                    </div>
+                    <div class="form-group">
+                        <label>Exam Name (Bangla) <span class="required">*</span></label>
+                        <input type="text" id="examNameBangla" required
+                            placeholder="e.g., বিসিএস প্রিলিমিনারি পরীক্ষা ২০২৬">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exam Schedule -->
+            <div class="card">
+                <h2>📅 Exam Schedule</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Start Date <span class="required">*</span></label>
+                        <input type="date" id="examDate" required>
+                        <div class="hint">When will the exam be available?</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Start Time <span class="required">*</span></label>
+                        <input type="time" id="examTime" required>
+                        <div class="hint">Exam start time</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Duration (minutes) <span class="required">*</span></label>
+                        <input type="number" id="durationMinutes" required min="1" placeholder="e.g., 120">
+                        <div class="hint">How long students have to complete</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exam Configuration -->
+            <div class="card">
+                <h2>⚙️ Exam Configuration</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Total Questions <span class="required">*</span></label>
+                        <input type="number" id="totalQuestions" required min="1" placeholder="e.g., 200"
+                            onchange="updateSummary()">
+                        <div class="hint">Total number of questions in exam</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Total Marks <span class="required">*</span></label>
+                        <input type="number" id="totalMarks" required min="1" step="0.5" placeholder="e.g., 200"
+                            onchange="updateSummary()">
+                        <div class="hint">Maximum marks for the exam</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Negative Marking</label>
+                        <input type="number" id="negativeMarking" step="0.25" placeholder="e.g., 0.25" value="0">
+                        <div class="hint">Marks deducted per wrong answer</div>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Language Mode <span class="required">*</span></label>
+                        <select id="languageMode" required>
+                            <option value="Bilingual">Bilingual (English & Bangla)</option>
+                            <option value="EnglishOnly">English Only</option>
+                            <option value="BanglaOnly">Bangla Only</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Pass Percentage</label>
+                        <input type="number" id="passPercentage" min="0" max="100" placeholder="e.g., 40" value="40">
+                        <div class="hint">Minimum percentage to pass</div>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="allowGuestUsers">
+                        <label for="allowGuestUsers">Allow Guest Users</label>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="isPaid">
+                        <label for="isPaid">Paid Exam</label>
+                    </div>
+                    <div class="form-group" id="feeGroup" style="display: none;">
+                        <label>Exam Fee (৳)</label>
+                        <input type="number" id="examFee" min="0" placeholder="e.g., 100">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subject Distribution -->
+            <div class="card">
+                <h2>📚 Subject Distribution</h2>
+                <p style="color: #666; margin-bottom: 20px;">Define how many questions from each subject and their
+                    difficulty levels</p>
+
+                <button type="button" class="btn btn-add" onclick="addSubjectDistribution()">+ Add Subject</button>
+
+                <div id="subjectDistributions"></div>
+
+                <div class="summary-box" id="summaryBox" style="display: none;">
+                    <h3 style="margin-bottom: 10px;">📊 Exam Summary</h3>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="value" id="summaryTotal">0</div>
+                            <div class="label">Total Questions</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="value" id="summaryMarks">0</div>
+                            <div class="label">Total Marks</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="value" id="summaryDuration">0</div>
+                            <div class="label">Duration (min)</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="value" id="summarySubjects">0</div>
+                            <div class="label">Subjects</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="actions">
+                <button type="submit" class="btn btn-success">Create Exam</button>
+                <button type="button" class="btn btn-secondary"
+                    onclick="window.location.href='exams.html'">Cancel</button>
+                <button type="button" class="btn" onclick="window.location.href='index.html'">Back to Dashboard</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:2781/api';
+        let subjects = [];
+        let subjectDistributionCount = 0;
+
+        window.onload = async () => {
+            await loadSubjects();
+
+            // Set default date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('examDate').value = today;
+
+            // Set default time
+            document.getElementById('examTime').value = '10:00';
+
+            // Toggle fee input
+            document.getElementById('isPaid').addEventListener('change', (e) => {
+                document.getElementById('feeGroup').style.display = e.target.checked ? 'block' : 'none';
+            });
+        };
+
+        async function loadSubjects() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/subjects`);
+                subjects = await response.json();
+            } catch (error) {
+                console.error('Error loading subjects:', error);
+                showMessage('Error loading subjects. Please refresh the page.', 'error');
+            }
+        }
+
+        function addSubjectDistribution() {
+            if (subjects.length === 0) {
+                showMessage('Please wait, loading subjects...', 'error');
+                return;
+            }
+
+            subjectDistributionCount++;
+            const container = document.getElementById('subjectDistributions');
+
+            const div = document.createElement('div');
+            div.className = 'subject-distribution';
+            div.id = `subject-${subjectDistributionCount}`;
+
+            div.innerHTML = `
+                <div class="subject-header">
+                    <h3>Subject ${subjectDistributionCount}</h3>
+                    <button type="button" class="btn-remove" onclick="removeSubjectDistribution(${subjectDistributionCount})">Remove</button>
+                </div>
+                
+                <div class="form-group">
+                    <label>Select Subject <span class="required">*</span></label>
+                    <select id="subjectId-${subjectDistributionCount}" required onchange="updateSummary()">
+                        <option value="">Choose a subject...</option>
+                        ${subjects.map(s => `<option value="${s.subjectId}">${s.subjectNameEnglish}</option>`).join('')}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Total Questions from this Subject <span class="required">*</span></label>
+                    <input type="number" id="totalQuestions-${subjectDistributionCount}" required min="1" placeholder="e.g., 50" onchange="updateSummary()">
+                </div>
+
+                <h4 style="margin: 15px 0 10px 0; color: #333; font-size: 14px;">Difficulty Distribution</h4>
+                <div class="difficulty-grid">
+                    <div class="form-group">
+                        <label>Easy Questions</label>
+                        <input type="number" id="easy-${subjectDistributionCount}" min="0" value="0" placeholder="0" onchange="updateSummary()">
+                    </div>
+                    <div class="form-group">
+                        <label>Intermediate</label>
+                        <input type="number" id="intermediate-${subjectDistributionCount}" min="0" value="0" placeholder="0" onchange="updateSummary()">
+                    </div>
+                    <div class="form-group">
+                        <label>Hard Questions</label>
+                        <input type="number" id="hard-${subjectDistributionCount}" min="0" value="0" placeholder="0" onchange="updateSummary()">
+                    </div>
+                </div>
+                <div class="hint" style="margin-top: 10px;">Note: Easy + Intermediate + Hard should equal Total Questions</div>
+            `;
+
+            container.appendChild(div);
+            updateSummary();
+        }
+
+        function removeSubjectDistribution(id) {
+            const element = document.getElementById(`subject-${id}`);
+            if (element) {
+                element.remove();
+                updateSummary();
+            }
+        }
+
+        function updateSummary() {
+            const totalQuestions = parseInt(document.getElementById('totalQuestions').value) || 0;
+            const totalMarks = parseFloat(document.getElementById('totalMarks').value) || 0;
+            const duration = parseInt(document.getElementById('durationMinutes').value) || 0;
+
+            let distributedQuestions = 0;
+            const distributions = document.querySelectorAll('.subject-distribution');
+
+            distributions.forEach(dist => {
+                const id = dist.id.split('-')[1];
+                const subjectQuestions = parseInt(document.getElementById(`totalQuestions-${id}`).value) || 0;
+                distributedQuestions += subjectQuestions;
+            });
+
+            document.getElementById('summaryTotal').textContent = totalQuestions;
+            document.getElementById('summaryMarks').textContent = totalMarks;
+            document.getElementById('summaryDuration').textContent = duration;
+            document.getElementById('summarySubjects').textContent = distributions.length;
+
+            if (distributions.length > 0) {
+                document.getElementById('summaryBox').style.display = 'block';
+            }
+
+            // Validate distribution
+            if (distributedQuestions > totalQuestions) {
+                document.getElementById('summaryTotal').style.color = '#f44336';
+            } else {
+                document.getElementById('summaryTotal').style.color = 'white';
+            }
+        }
+
+        document.getElementById('examForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Validate subject distributions
+            const distributions = document.querySelectorAll('.subject-distribution');
+            if (distributions.length === 0) {
+                showMessage('Please add at least one subject distribution', 'error');
+                return;
+            }
+
+            // Collect subject distributions
+            const subjectDistributions = [];
+            let totalDistributed = 0;
+
+            for (const dist of distributions) {
+                const id = dist.id.split('-')[1];
+                const subjectId = document.getElementById(`subjectId-${id}`).value;
+                const totalQuestions = parseInt(document.getElementById(`totalQuestions-${id}`).value) || 0;
+                const easy = parseInt(document.getElementById(`easy-${id}`).value) || 0;
+                const intermediate = parseInt(document.getElementById(`intermediate-${id}`).value) || 0;
+                const hard = parseInt(document.getElementById(`hard-${id}`).value) || 0;
+
+                if (!subjectId) {
+                    showMessage('Please select a subject for all distributions', 'error');
+                    return;
+                }
+
+                if (easy + intermediate + hard !== totalQuestions) {
+                    showMessage(`Subject ${id}: Difficulty levels (${easy + intermediate + hard}) don't match total questions (${totalQuestions})`, 'error');
+                    return;
+                }
+
+                totalDistributed += totalQuestions;
+
+                subjectDistributions.push({
+                    subjectId: subjectId,
+                    totalQuestions: totalQuestions,
+                    easyQuestions: easy,
+                    intermediateQuestions: intermediate,
+                    hardQuestions: hard
+                });
+            }
+
+            const examTotalQuestions = parseInt(document.getElementById('totalQuestions').value);
+            if (totalDistributed !== examTotalQuestions) {
+                showMessage(`Total distributed questions (${totalDistributed}) must equal exam total questions (${examTotalQuestions})`, 'error');
+                return;
+            }
+
+            // Combine date and time
+            const date = document.getElementById('examDate').value;
+            const time = document.getElementById('examTime').value;
+            const examDateTime = new Date(`${date}T${time}`).toISOString();
+
+            // Prepare exam data
+            const examData = {
+                examNameBangla: document.getElementById('examNameBangla').value,
+                examNameEnglish: document.getElementById('examNameEnglish').value,
+                examDate: examDateTime,
+                totalQuestions: examTotalQuestions,
+                durationMinutes: parseInt(document.getElementById('durationMinutes').value),
+                totalMarks: parseFloat(document.getElementById('totalMarks').value),
+                negativeMarking: parseFloat(document.getElementById('negativeMarking').value) || 0,
+                passPercentage: parseFloat(document.getElementById('passPercentage').value) || 40,
+                languageMode: document.getElementById('languageMode').value,
+                isPaid: document.getElementById('isPaid').checked,
+                examFee: document.getElementById('isPaid').checked ? parseFloat(document.getElementById('examFee').value) || 0 : 0,
+                allowGuestUsers: document.getElementById('allowGuestUsers').checked,
+                subjectDistributions: subjectDistributions
+            };
+
+            try {
+                showMessage('Creating exam...', 'success');
+
+                const response = await fetch(`${API_BASE}/admin/exams`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(examData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showMessage('✅ Exam created successfully! Redirecting to exams page...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'exams.html';
+                    }, 2000);
+                } else {
+                    showMessage('❌ Error: ' + (result.message || 'Failed to create exam'), 'error');
+                }
+            } catch (error) {
+                showMessage('❌ Error creating exam: ' + error.message, 'error');
+            }
+        });
+
+        function showMessage(message, type) {
+            const container = document.getElementById('messageContainer');
+            container.innerHTML = `<div class="message ${type}">${message}</div>`;
+
+            if (type === 'success') {
+                setTimeout(() => {
+                    container.innerHTML = '';
+                }, 5000);
+            }
+        }
+    </script>
+</body>
+
+</html>

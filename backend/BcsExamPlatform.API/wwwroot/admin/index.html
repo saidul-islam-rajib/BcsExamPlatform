@@ -257,6 +257,10 @@
         <div class="header">
             <h1>🎓 BCS Exam Platform - Admin Panel</h1>
             <p>Manage questions, exams, and system settings</p>
+            <p style="margin-top: 10px; font-size: 14px;">
+                <a href="quick-start.html" style="color: white; text-decoration: underline;">🚀 Quick Start Guide</a> |
+                <a href="workflow.html" style="color: white; text-decoration: underline;">📖 Full Workflow</a>
+            </p>
         </div>
 
         <div class="tabs">
@@ -295,6 +299,8 @@
             <div style="margin-bottom: 20px;">
                 <button class="btn" onclick="window.location.href='questions.html'">View All Questions
                     (Detailed)</button>
+                <button class="btn btn-success" onclick="window.location.href='generate-ai-questions.html'">🤖 Generate
+                    AI Questions</button>
                 <button class="btn btn-secondary" onclick="loadQuestionsPreview()">Refresh</button>
             </div>
 
@@ -324,6 +330,8 @@
                 details including questions and student attempts.</p>
 
             <div style="margin-bottom: 20px;">
+                <button class="btn btn-success" onclick="window.location.href='create-exam.html'">+ Create New
+                    Exam</button>
                 <button class="btn" onclick="window.location.href='exams.html'">View All Exams (Detailed)</button>
                 <button class="btn btn-secondary" onclick="loadExamsPreview()">Refresh</button>
             </div>

@@ -17,6 +17,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Register OpenAI Service
+builder.Services.AddHttpClient<BcsExamPlatform.Core.Services.IOpenAIService, BcsExamPlatform.Infrastructure.Services.OpenAIService>();
+
 // JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not configured");

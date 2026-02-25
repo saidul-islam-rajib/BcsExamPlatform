@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Workflow Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .workflow {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .step {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #667eea;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: bold;
+            font-size: 20px;
+            margin-right: 15px;
+        }
+
+        .step h2 {
+            display: inline-block;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .step-content {
+            margin-left: 55px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .button-example {
+            display: inline-block;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border-radius: 6px;
+            margin: 5px 5px 5px 0;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 0 5px;
+        }
+
+        .badge-draft {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-published {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .arrow {
+            text-align: center;
+            font-size: 30px;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .tip {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-top: 20px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Exam Management Workflow</h1>
+            <p>Step-by-step guide to creating and publishing exams</p>
+        </div>
+
+        <div class="workflow">
+            <div class="step">
+                <span class="step-number">1</span>
+                <h2>Create New Exam</h2>
+                <div class="step-content">
+                    <p><strong>Where:</strong> Dashboard or Exams page</p>
+                    <p><strong>Button:</strong> <span class="button-example">+ Create New Exam</span></p>
+                    <p><strong>What to fill:</strong></p>
+                    <ul style="margin: 10px 0 10px 20px;">
+                        <li>Exam name (English & Bangla)</li>
+                        <li>Start date and time</li>
+                        <li>Duration (e.g., 120 minutes)</li>
+                        <li>Total questions (e.g., 200)</li>
+                        <li>Total marks (e.g., 200)</li>
+                        <li>Subject distribution (Bangla: 50, English: 50, Math: 100)</li>
+                    </ul>
+                    <p><strong>Result:</strong> Exam created with <span class="status-badge badge-draft">Draft</span>
+                        status</p>
+                </div>
+            </div>
+
+            <div class="arrow">↓</div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h2>Generate Questions</h2>
+                <div class="step-content">
+                    <p><strong>Where:</strong> Exams page, find your exam</p>
+                    <p><strong>Button:</strong> <span class="button-example">Generate Questions</span></p>
+                    <p><strong>What happens:</strong></p>
+                    <ul style="margin: 10px 0 10px 20px;">
+                        <li>System automatically selects questions from question bank</li>
+                        <li>Questions match your subject distribution</li>
+                        <li>Difficulty levels are respected (Easy, Intermediate, Hard)</li>
+                        <li>Total questions match your exam configuration</li>
+                    </ul>
+                    <div class="tip">
+                        <strong>💡 Tip:</strong> Make sure you have enough questions in your question bank. Use "Quick
+                        Setup" → "Seed 200 Sample Questions" if needed.
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow">↓</div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h2>Publish Exam</h2>
+                <div class="step-content">
+                    <p><strong>Where:</strong> Exams page, same exam row</p>
+                    <p><strong>Button:</strong> <span class="button-example">Publish</span></p>
+                    <p><strong>What happens:</strong></p>
+                    <ul style="margin: 10px 0 10px 20px;">
+                        <li>Exam status changes to <span class="status-badge badge-published">Published</span></li>
+                        <li>Exam becomes visible to students</li>
+                        <li>Students can register and take the exam</li>
+                    </ul>
+                    <div class="tip">
+                        <strong>⚠️ Important:</strong> Once published, students can start taking the exam. Make sure
+                        everything is correct before publishing!
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow">↓</div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <h2>Monitor & Manage</h2>
+                <div class="step-content">
+                    <p><strong>Available actions for published exams:</strong></p>
+                    <ul style="margin: 10px 0 10px 20px;">
+                        <li><span class="button-example">View</span> - See exam details, questions, and student attempts
+                        </li>
+                        <li><span class="button-example"
+                                style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">Unpublish</span>
+                            - Take exam offline (if needed)</li>
+                    </ul>
+                    <p style="margin-top: 15px;"><strong>View exam details to see:</strong></p>
+                    <ul style="margin: 10px 0 10px 20px;">
+                        <li>Overview: All exam settings and configuration</li>
+                        <li>Questions: Full list of questions in the exam</li>
+                        <li>Student Attempts: Who took the exam and their scores</li>
+                        <li>Analytics: Performance statistics</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div
+            style="background: white; padding: 25px; border-radius: 10px; margin-top: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <h2 style="color: #667eea; margin-bottom: 15px;">📊 Status Reference</h2>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr style="border-bottom: 2px solid #e0e0e0;">
+                    <th style="padding: 10px; text-align: left;">Status</th>
+                    <th style="padding: 10px; text-align: left;">Meaning</th>
+                    <th style="padding: 10px; text-align: left;">Available Actions</th>
+                </tr>
+                <tr style="border-bottom: 1px solid #e0e0e0;">
+                    <td style="padding: 10px;"><span class="status-badge badge-draft">Draft</span></td>
+                    <td style="padding: 10px;">Exam created but not ready for students</td>
+                    <td style="padding: 10px;">Generate Questions, Publish</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px;"><span class="status-badge badge-published">Published</span></td>
+                    <td style="padding: 10px;">Exam is live and available to students</td>
+                    <td style="padding: 10px;">View, Unpublish</td>
+                </tr>
+            </table>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="index.html" class="back-btn">← Back to Dashboard</a>
+            <a href="exams.html" class="back-btn"
+                style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">Go to Exams</a>
+        </div>
+    </div>
+</body>
+
+</html>

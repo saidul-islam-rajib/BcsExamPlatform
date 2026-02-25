@@ -295,6 +295,9 @@
         </div>
 
         <div class="filters">
+            <select id="examFilter" onchange="loadQuestions()">
+                <option value="">All Exams</option>
+            </select>
             <select id="subjectFilter" onchange="loadQuestions()">
                 <option value="">All Subjects</option>
             </select>
@@ -310,6 +313,8 @@
                 <option value="false">Pending</option>
             </select>
             <button class="btn" onclick="loadQuestions()">Refresh</button>
+            <button class="btn" onclick="window.location.href='generate-ai-questions.html'"
+                style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">🤖 Generate AI Questions</button>
             <button class="btn" onclick="window.location.href='index.html'">Back to Admin</button>
         </div>
 
@@ -320,13 +325,14 @@
                     <th>Question</th>
                     <th style="width: 150px;">Subject</th>
                     <th style="width: 120px;">Difficulty</th>
+                    <th style="width: 150px;">Exam</th>
                     <th style="width: 100px;">Status</th>
                     <th style="width: 100px;">Actions</th>
                 </tr>
             </thead>
             <tbody id="questionsTableBody">
                 <tr>
-                    <td colspan="6" style="text-align: center; padding: 40px;">Loading questions...</td>
+                    <td colspan="7" style="text-align: center; padding: 40px;">Loading questions...</td>
                 </tr>
             </tbody>
         </table>
@@ -348,6 +354,7 @@
         let allQuestions = [];
 
         window.onload = async () => {
+            await loadExams();
             await loadSubjects();
             await loadQuestions();
         };
@@ -369,21 +376,83 @@
             }
         }
 
+        async function loadExams() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/exams`);
+                const exams = await response.json();
+
+                const select = document.getElementById('examFilter');
+                exams.forEach(exam => {
+                    const option = document.createElement('option');
+                    option.value = exam.examId;
+                    option.textContent = exam.examNameEnglish;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading exams:', error);
+            }
+        }
+
         async function loadQuestions() {
             try {
+                const examId = document.getElementById('examFilter').value;
                 const subjectId = document.getElementById('subjectFilter').value;
                 const difficulty = document.getElementById('difficultyFilter').value;
                 const isApproved = document.getElementById('statusFilter').value;
 
-                let url = `${API_BASE}/admin/questions?pageSize=200`;
-                if (subjectId) url += `&subjectId=${subjectId}`;
-                if (difficulty) url += `&difficulty=${difficulty}`;
-                if (isApproved) url += `&isApproved=${isApproved}`;
+                let url, data;
+                let selectedExamName = '';
 
-                const response = await fetch(url);
-                const data = await response.json();
+                // If exam filter is selected, get questions for that exam
+                if (examId) {
+                    // Get exam name from the dropdown
+                    const examSelect = document.getElementById('examFilter');
+                    selectedExamName = examSelect.options[examSelect.selectedIndex].text;
 
-                allQuestions = data.questions || [];
+                    url = `${API_BASE}/admin/exams/${examId}/questions`;
+                    const response = await fetch(url);
+
+                    if (!response.ok) {
+                        alert('Error loading exam questions. Make sure the exam has generated questions.');
+                        const tbody = document.getElementById('questionsTableBody');
+                        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: #f44336;">Error loading questions. Please generate questions for this exam first.</td></tr>';
+                        return;
+                    }
+
+                    const examData = await response.json();
+
+                    // Transform exam questions to match the expected format
+                    allQuestions = examData.questions.map(q => ({
+                        questionId: q.questionId,
+                        questionTextEnglish: q.questionTextEnglish,
+                        questionTextBangla: q.questionTextBangla,
+                        subjectName: q.subjectName,
+                        topicName: q.topicName,
+                        difficultyLevel: q.difficultyLevel,
+                        marks: q.marks,
+                        isApproved: true,
+                        isActive: true,
+                        examName: selectedExamName
+                    }));
+
+                    data = {
+                        totalCount: allQuestions.length,
+                        questions: allQuestions
+                    };
+                } else {
+                    // Otherwise get all questions with filters
+                    url = `${API_BASE}/admin/questions?pageSize=200`;
+                    if (subjectId) url += `&subjectId=${subjectId}`;
+                    if (difficulty) url += `&difficulty=${difficulty}`;
+                    if (isApproved) url += `&isApproved=${isApproved}`;
+
+                    const response = await fetch(url);
+                    data = await response.json();
+                    allQuestions = (data.questions || []).map(q => ({
+                        ...q,
+                        examName: '-'
+                    }));
+                }
 
                 // Update stats
                 document.getElementById('totalQuestions').textContent = data.totalCount || 0;
@@ -395,7 +464,7 @@
                 tbody.innerHTML = '';
 
                 if (allQuestions.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">No questions found</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">No questions found</td></tr>';
                     return;
                 }
 
@@ -411,6 +480,7 @@
                         <td>${q.questionTextEnglish.substring(0, 80)}${q.questionTextEnglish.length > 80 ? '...' : ''}</td>
                         <td>${q.subjectName}</td>
                         <td><span class="badge badge-${difficultyClass}">${q.difficultyLevel}</span></td>
+                        <td style="font-size: 13px; color: #666;">${q.examName || '-'}</td>
                         <td><span class="badge badge-${statusClass}">${q.isApproved ? 'Approved' : 'Pending'}</span></td>
                         <td>
                             <button class="btn btn-danger" onclick="event.stopPropagation(); deleteQuestion('${q.questionId}')" style="padding: 6px 12px; font-size: 12px;">Delete</button>

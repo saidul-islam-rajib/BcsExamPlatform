@@ -138,3 +138,14 @@ public class ExamListAdminDTO
     public decimal ExamFee { get; set; }
     public DateTime CreatedAt { get; set; }
 }
+
+// AI Question Generation DTO
+public class GenerateAIQuestionsDTO
+{
+    public Guid SubjectId { get; set; }
+    public Guid TopicId { get; set; }
+    public string DifficultyLevel { get; set; } = "Easy";
+    public int Count { get; set; } = 10;
+    public string Language { get; set; } = "English";
+    public bool AutoApprove { get; set; } = true;
+}

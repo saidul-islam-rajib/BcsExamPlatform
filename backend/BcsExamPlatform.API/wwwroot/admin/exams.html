@@ -112,6 +112,18 @@
             color: #856404;
         }
 
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 13px;
+            margin: 2px;
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -311,14 +323,139 @@
             padding: 40px;
             color: #666;
         }
+
+        /* Toast Notification System */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 400px;
+        }
+
+        .toast {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            animation: slideIn 0.3s ease-out;
+            border-left: 4px solid #667eea;
+        }
+
+        .toast.success {
+            border-left-color: #4caf50;
+        }
+
+        .toast.error {
+            border-left-color: #f44336;
+        }
+
+        .toast.warning {
+            border-left-color: #ff9800;
+        }
+
+        .toast.info {
+            border-left-color: #2196f3;
+        }
+
+        .toast-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .toast.success .toast-icon {
+            color: #4caf50;
+        }
+
+        .toast.error .toast-icon {
+            color: #f44336;
+        }
+
+        .toast.warning .toast-icon {
+            color: #ff9800;
+        }
+
+        .toast.info .toast-icon {
+            color: #2196f3;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        .toast-message {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .toast-close {
+            cursor: pointer;
+            color: #999;
+            font-size: 20px;
+            line-height: 1;
+            padding: 0 4px;
+        }
+
+        .toast-close:hover {
+            color: #333;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        .toast.removing {
+            animation: slideOut 0.3s ease-out forwards;
+        }
     </style>
 </head>
 
 <body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <div class="container">
         <div class="header">
             <h1>📋 Exam Management</h1>
             <p>View and manage all exams, questions, and student attempts</p>
+            <p style="margin-top: 10px; font-size: 14px; opacity: 0.9;">
+                💡 <strong>Quick Guide:</strong> Draft exams → Generate Questions → Publish |
+                <a href="ADMIN_GUIDE.md" target="_blank" style="color: white; text-decoration: underline;">View Full
+                    Guide</a>
+            </p>
         </div>
 
         <div class="stats">
@@ -337,6 +474,7 @@
         </div>
 
         <div style="margin-bottom: 20px;">
+            <button class="btn btn-success" onclick="window.location.href='create-exam.html'">+ Create New Exam</button>
             <button class="btn" onclick="loadExams()">Refresh</button>
             <button class="btn" onclick="window.location.href='index.html'">Back to Admin</button>
         </div>
@@ -350,7 +488,7 @@
                     <th style="width: 100px;">Questions</th>
                     <th style="width: 100px;">Duration</th>
                     <th style="width: 100px;">Status</th>
-                    <th style="width: 100px;">Attempts</th>
+                    <th style="width: 250px;">Actions</th>
                 </tr>
             </thead>
             <tbody id="examsTableBody">
@@ -371,7 +509,8 @@
             <div class="modal-body">
                 <div class="tabs">
                     <button class="tab active" onclick="showTab('overview')">Overview</button>
-                    <button class="tab" onclick="showTab('questions')">Questions (200)</button>
+                    <button class="tab" id="questionsTab" onclick="showTab('questions')">Questions (<span
+                            id="questionCount">0</span>)</button>
                     <button class="tab" onclick="showTab('attempts')">Student Attempts</button>
                     <button class="tab" onclick="showTab('analytics')">Analytics</button>
                 </div>
@@ -398,6 +537,42 @@
     <script>
         const API_BASE = 'http://localhost:2781/api';
         let currentExamId = null;
+
+        // Toast Notification System
+        function showToast(title, message, type = 'info', duration = 5000) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+
+            const icons = {
+                success: '✓',
+                error: '✕',
+                warning: '⚠',
+                info: 'ℹ'
+            };
+
+            toast.innerHTML = `
+                <div class="toast-icon">${icons[type]}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <div class="toast-close" onclick="removeToast(this.parentElement)">×</div>
+            `;
+
+            container.appendChild(toast);
+
+            if (duration > 0) {
+                setTimeout(() => removeToast(toast), duration);
+            }
+
+            return toast;
+        }
+
+        function removeToast(toast) {
+            toast.classList.add('removing');
+            setTimeout(() => toast.remove(), 300);
+        }
 
         window.onload = async () => {
             await loadExams();
@@ -431,6 +606,7 @@
 
                 exams.forEach((exam, index) => {
                     const row = document.createElement('tr');
+                    row.style.cursor = 'pointer';
                     row.onclick = () => showExamDetails(exam.examId);
 
                     const examDate = new Date(exam.examDate).toLocaleDateString();
@@ -443,7 +619,17 @@
                         <td>${exam.totalQuestions}</td>
                         <td>${exam.durationMinutes} min</td>
                         <td><span class="badge badge-${statusClass}">${exam.isPublished ? 'Published' : 'Draft'}</span></td>
-                        <td>-</td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn btn-small btn-success" onclick="event.stopPropagation(); checkAndGenerateQuestions('${exam.examId}', ${exam.totalQuestions}, this)">Generate Questions</button>
+                                <button class="btn btn-small" onclick="event.stopPropagation(); generateAIQuestionsForExam('${exam.examId}', this)" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">🤖 Generate AI Questions</button>
+                                ${exam.isPublished ? `
+                                    <button class="btn btn-small btn-danger" onclick="event.stopPropagation(); unpublishExam('${exam.examId}')">Unpublish</button>
+                                ` : `
+                                    <button class="btn btn-small btn-success" onclick="event.stopPropagation(); publishExam('${exam.examId}')">Publish</button>
+                                `}
+                            </div>
+                        </td>
                     `;
                     tbody.appendChild(row);
                 });
@@ -529,36 +715,41 @@
 
         async function loadExamQuestions(examId) {
             try {
-                // First, start the exam to get attemptId (we'll use a dummy attempt)
-                const startResponse = await fetch(`${API_BASE}/exam/start`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        examId: examId,
-                        guestEmail: 'admin@preview.com',
-                        selectedLanguage: 'English'
-                    })
-                });
+                const response = await fetch(`${API_BASE}/admin/exams/${examId}/questions`);
 
-                if (!startResponse.ok) {
-                    document.getElementById('examQuestions').innerHTML = '<p class="loading">Unable to load questions. This exam may have already been attempted.</p>';
+                if (!response.ok) {
+                    document.getElementById('questionCount').textContent = '0';
+                    document.getElementById('examQuestions').innerHTML = '<p class="loading">Unable to load questions. Please generate questions first.</p>';
                     return;
                 }
 
-                const startData = await startResponse.json();
-                const attemptId = startData.attemptId;
+                const data = await response.json();
+                const questions = data.questions;
 
-                // Get questions
-                const questionsResponse = await fetch(`${API_BASE}/exam/questions/${attemptId}`);
-                const questions = await questionsResponse.json();
+                // Update question count in tab
+                document.getElementById('questionCount').textContent = questions.length;
 
                 const questionsDiv = document.getElementById('examQuestions');
+
+                if (questions.length === 0) {
+                    questionsDiv.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #666;">
+                            <h3 style="margin-bottom: 15px;">⚠️ No questions generated yet</h3>
+                            <p style="margin-bottom: 10px;">This exam has <strong>0 questions</strong>.</p>
+                            <p style="margin-bottom: 20px; color: #999;">Close this modal and click "Generate Questions" button to add questions automatically.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
                 questionsDiv.innerHTML = `
-                    <p style="margin-bottom: 20px; color: #666;">Total Questions: ${questions.length}</p>
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #4caf50;">
+                        <strong>✅ ${questions.length} questions loaded successfully!</strong>
+                    </div>
                     <div class="questions-list">
                         ${questions.map((q, index) => `
                             <div class="question-item">
-                                <h4>Question ${index + 1}: ${q.questionText.substring(0, 100)}${q.questionText.length > 100 ? '...' : ''}</h4>
+                                <h4>Question ${q.questionNumber}: ${q.questionTextEnglish.substring(0, 150)}${q.questionTextEnglish.length > 150 ? '...' : ''}</h4>
                                 <div class="meta">
                                     Subject: ${q.subjectName} | 
                                     Topic: ${q.topicName} | 
@@ -571,7 +762,14 @@
                 `;
             } catch (error) {
                 console.error('Error loading exam questions:', error);
-                document.getElementById('examQuestions').innerHTML = '<p class="loading">Error loading questions</p>';
+                document.getElementById('questionCount').textContent = '0';
+                document.getElementById('examQuestions').innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #f44336;">
+                        <h3 style="margin-bottom: 15px;">❌ Error loading questions</h3>
+                        <p>${error.message}</p>
+                        <p style="margin-top: 15px; color: #666;">Check browser console (F12) for details</p>
+                    </div>
+                `;
             }
         }
 
@@ -646,6 +844,266 @@
 
         function closeModal() {
             document.getElementById('examModal').classList.remove('active');
+        }
+
+        async function checkAndGenerateQuestions(examId, totalQuestions, buttonElement) {
+            try {
+                // Show checking toast
+                const checkingToast = showToast('Checking...', 'Verifying question bank availability', 'info', 0);
+
+                // First check if we have enough questions
+                const questionsResponse = await fetch(`${API_BASE}/admin/questions?pageSize=1`);
+                const questionsData = await questionsResponse.json();
+
+                removeToast(checkingToast);
+
+                if (questionsData.totalCount === 0) {
+                    showToast(
+                        'Question Bank Empty',
+                        'No questions found. Automatically seeding 200 sample questions...',
+                        'warning',
+                        3000
+                    );
+
+                    // Auto-seed questions
+                    const seedingToast = showToast('Seeding Questions...', 'Adding 200 sample questions to database. Please wait...', 'info', 0);
+
+                    const seedResponse = await fetch(`${API_BASE}/admin/seed-sample-data`, { method: 'POST' });
+                    removeToast(seedingToast);
+
+                    if (seedResponse.ok) {
+                        showToast(
+                            'Questions Seeded Successfully!',
+                            '200 sample questions added. Now generating exam questions...',
+                            'success',
+                            3000
+                        );
+                        await generateQuestions(examId, buttonElement);
+                    } else {
+                        showToast(
+                            'Seeding Failed',
+                            'Could not seed questions. Please try manually from Dashboard → Quick Setup.',
+                            'error',
+                            8000
+                        );
+                    }
+                    return;
+                }
+
+                if (questionsData.totalCount < totalQuestions) {
+                    showToast(
+                        'Low Question Count',
+                        `You have ${questionsData.totalCount} questions but need ${totalQuestions}. Generation may fail if subjects don't have enough questions.`,
+                        'warning',
+                        5000
+                    );
+                }
+
+                // Proceed with generation
+                await generateQuestions(examId, buttonElement);
+
+            } catch (error) {
+                console.error('Error checking questions:', error);
+                showToast(
+                    'Check Failed',
+                    'Could not verify question bank. Attempting to generate anyway...',
+                    'error',
+                    5000
+                );
+                await generateQuestions(examId, buttonElement);
+            }
+        }
+
+        async function generateQuestions(examId, buttonElement = null) {
+            try {
+                // Show loading state if button is provided
+                let originalText = '';
+                if (buttonElement) {
+                    originalText = buttonElement.textContent;
+                    buttonElement.textContent = 'Generating...';
+                    buttonElement.disabled = true;
+                }
+
+                const generatingToast = showToast('Generating Questions...', 'Selecting questions from question bank', 'info', 0);
+
+                const response = await fetch(`${API_BASE}/admin/exams/${examId}/generate-questions`, {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+                removeToast(generatingToast);
+
+                if (response.ok) {
+                    if (result.totalQuestions === 0) {
+                        showToast(
+                            'No Questions Generated',
+                            'No questions match this exam\'s subject distribution. Check if question bank has questions for required subjects.',
+                            'error',
+                            10000
+                        );
+                        if (buttonElement) {
+                            buttonElement.textContent = originalText;
+                            buttonElement.disabled = false;
+                        }
+                        return;
+                    }
+
+                    showToast(
+                        'Questions Generated Successfully!',
+                        `${result.totalQuestions} questions have been assigned to this exam.`,
+                        'success',
+                        5000
+                    );
+
+                    // Reload the exams list
+                    await loadExams();
+
+                    // If modal is open for this exam, reload the questions
+                    if (currentExamId === examId) {
+                        await loadExamQuestions(examId);
+                    }
+                } else {
+                    showToast(
+                        'Generation Failed',
+                        result.message || 'Could not generate questions. Check if question bank has questions for the required subjects.',
+                        'error',
+                        8000
+                    );
+                    if (buttonElement) {
+                        buttonElement.textContent = originalText;
+                        buttonElement.disabled = false;
+                    }
+                }
+            } catch (error) {
+                console.error('Error generating questions:', error);
+                showToast(
+                    'Generation Error',
+                    'An unexpected error occurred. Check console for details.',
+                    'error',
+                    8000
+                );
+                if (buttonElement) {
+                    buttonElement.textContent = 'Generate Questions';
+                    buttonElement.disabled = false;
+                }
+            }
+        }
+
+        async function generateAIQuestionsForExam(examId, buttonElement = null) {
+            if (!confirm('🤖 Generate AI Questions?\n\nThis will:\n• Use OpenAI to generate questions based on exam subject distribution\n• Create questions with options, correct answers, and explanations\n• Replace any existing questions for this exam\n• May take 30-60 seconds depending on question count\n\nNote: This will consume OpenAI API credits.\n\nContinue?')) {
+                return;
+            }
+
+            try {
+                // Show loading state
+                let originalText = '';
+                if (buttonElement) {
+                    originalText = buttonElement.textContent;
+                    buttonElement.textContent = '⏳ Generating...';
+                    buttonElement.disabled = true;
+                }
+
+                const generatingToast = showToast(
+                    'AI Generating Questions...',
+                    'Using OpenAI to create exam questions. This may take 30-60 seconds. Please wait...',
+                    'info',
+                    0
+                );
+
+                const response = await fetch(`${API_BASE}/admin/exams/${examId}/generate-ai-questions`, {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+                removeToast(generatingToast);
+
+                if (response.ok) {
+                    showToast(
+                        'AI Questions Generated Successfully!',
+                        `${result.totalQuestions} AI-generated questions have been created and assigned to this exam.`,
+                        'success',
+                        8000
+                    );
+
+                    // Reload the exams list
+                    await loadExams();
+
+                    // If modal is open for this exam, reload the questions
+                    if (currentExamId === examId) {
+                        await loadExamQuestions(examId);
+                    }
+                } else {
+                    showToast(
+                        'AI Generation Failed',
+                        result.message || 'Failed to generate AI questions. Check if OpenAI API key is configured correctly.',
+                        'error',
+                        10000
+                    );
+                }
+
+                if (buttonElement) {
+                    buttonElement.textContent = originalText;
+                    buttonElement.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error generating AI questions:', error);
+                showToast(
+                    'AI Generation Error',
+                    'An unexpected error occurred. Check console for details and verify OpenAI API key is configured.',
+                    'error',
+                    10000
+                );
+                if (buttonElement) {
+                    buttonElement.textContent = '🤖 Generate AI Questions';
+                    buttonElement.disabled = false;
+                }
+            }
+        }
+
+        async function publishExam(examId) {
+            if (!confirm('Are you sure you want to publish this exam? Students will be able to take it.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/exams/${examId}/publish`, {
+                    method: 'PUT'
+                });
+
+                if (response.ok) {
+                    alert('✅ Exam published successfully!');
+                    await loadExams();
+                } else {
+                    const error = await response.json();
+                    alert('❌ Error publishing exam: ' + (error.message || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error publishing exam:', error);
+                alert('❌ Error publishing exam: ' + error.message);
+            }
+        }
+
+        async function unpublishExam(examId) {
+            if (!confirm('Are you sure you want to unpublish this exam? Students will no longer be able to take it.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/exams/${examId}/unpublish`, {
+                    method: 'PUT'
+                });
+
+                if (response.ok) {
+                    alert('✅ Exam unpublished successfully!');
+                    await loadExams();
+                } else {
+                    const error = await response.json();
+                    alert('❌ Error unpublishing exam: ' + (error.message || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error unpublishing exam:', error);
+                alert('❌ Error unpublishing exam: ' + error.message);
+            }
         }
 
         // Close modal when clicking outside

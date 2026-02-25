@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Start Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .alert {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .alert h2 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .step-box {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 35px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 10px 5px;
+            font-weight: 600;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            color: #d63384;
+        }
+
+        .highlight {
+            background: #e3f2fd;
+            padding: 15px;
+            border-left: 4px solid #2196f3;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Quick Start: Your First Exam</h1>
+            <p>Follow these 3 simple steps</p>
+        </div>
+
+        <div class="alert">
+            <h2>⚠️ Important: Questions First!</h2>
+            <p>Before creating exams, you need questions in your question bank. Without questions, you can't generate
+                exam questions!</p>
+        </div>
+
+        <div class="step-box">
+            <h2><span class="step-number">1</span> Add Questions to Question Bank</h2>
+            <p style="margin: 15px 0 15px 45px; color: #666;">You need questions before you can create exams. Choose one
+                option:</p>
+
+            <div class="highlight" style="margin-left: 45px;">
+                <strong>Option A: Quick Setup (Recommended for testing)</strong>
+                <ol style="margin: 10px 0 10px 20px;">
+                    <li>Go to <strong>Dashboard</strong></li>
+                    <li>Click <strong>"Quick Setup"</strong> tab</li>
+                    <li>Click <code>Seed 200 Sample Questions</code> button</li>
+                    <li>Wait for confirmation (creates 50 Bangla + 50 English + 100 Math questions)</li>
+                </ol>
+            </div>
+
+            <div class="highlight" style="margin-left: 45px;">
+                <strong>Option B: Manual Entry</strong>
+                <ol style="margin: 10px 0 10px 20px;">
+                    <li>Use the API to add your own questions</li>
+                    <li>Or create a question entry form (future feature)</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="step-box">
+            <h2><span class="step-number">2</span> Create Your Exam</h2>
+            <ol style="margin: 15px 0 15px 45px; color: #666;">
+                <li>Click <code>+ Create New Exam</code> button</li>
+                <li>Fill in exam details:
+                    <ul style="margin: 10px 0 10px 20px;">
+                        <li>Name: "My First Exam"</li>
+                        <li>Date & Time: Choose when it starts</li>
+                        <li>Duration: 10 minutes (for testing)</li>
+                        <li>Total Questions: 10</li>
+                        <li>Total Marks: 10</li>
+                    </ul>
+                </li>
+                <li>Add Subject Distribution:
+                    <ul style="margin: 10px 0 10px 20px;">
+                        <li>Click <code>+ Add Subject</code></li>
+                        <li>Select "বাংলা" (Bangla)</li>
+                        <li>Total Questions: 10</li>
+                        <li>Easy: 5, Intermediate: 3, Hard: 2</li>
+                    </ul>
+                </li>
+                <li>Click <code>Create Exam</code></li>
+            </ol>
+            <div class="highlight" style="margin-left: 45px;">
+                <strong>Result:</strong> Exam created with "Draft" status (no questions yet!)
+            </div>
+        </div>
+
+        <div class="step-box">
+            <h2><span class="step-number">3</span> Generate Questions & Publish</h2>
+            <ol style="margin: 15px 0 15px 45px; color: #666;">
+                <li>Go to <strong>Exams</strong> page</li>
+                <li>Find your exam (status: Draft)</li>
+                <li>Click <code>Generate Questions</code> button
+                    <ul style="margin: 10px 0 10px 20px;">
+                        <li>System automatically selects 10 Bangla questions</li>
+                        <li>Respects difficulty distribution (5 easy, 3 intermediate, 2 hard)</li>
+                    </ul>
+                </li>
+                <li>Click <code>Publish</code> button</li>
+                <li>Click <code>View</code> → <strong>Questions</strong> tab to see all 10 questions!</li>
+            </ol>
+        </div>
+
+        <div
+            style="background: #d4edda; border: 2px solid #28a745; border-radius: 8px; padding: 20px; margin-top: 30px;">
+            <h2 style="color: #155724; margin-bottom: 10px;">✅ That's It!</h2>
+            <p style="color: #155724;">Your exam is now live with 10 questions. Students can take it!</p>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="index.html" class="btn">Go to Dashboard</a>
+            <a href="exams.html" class="btn btn-success">Go to Exams</a>
+        </div>
+
+        <div
+            style="background: white; padding: 25px; border-radius: 10px; margin-top: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <h3 style="color: #667eea; margin-bottom: 15px;">❓ Troubleshooting</h3>
+
+            <p style="margin-bottom: 10px;"><strong>Q: I don't see any questions in my exam?</strong></p>
+            <p style="margin-left: 20px; margin-bottom: 20px; color: #666;">
+                A: You need to click "Generate Questions" button first. The exam is created empty, questions are added
+                separately.
+            </p>
+
+            <p style="margin-bottom: 10px;"><strong>Q: "Generate Questions" fails with error?</strong></p>
+            <p style="margin-left: 20px; margin-bottom: 20px; color: #666;">
+                A: You don't have enough questions in your question bank. Go to Dashboard → Quick Setup → Seed Sample
+                Questions.
+            </p>
+
+            <p style="margin-bottom: 10px;"><strong>Q: Can I change questions after generating?</strong></p>
+            <p style="margin-left: 20px; color: #666;">
+                A: Yes! Click "Generate Questions" again to get a new random selection from your question bank.
+            </p>
+        </div>
+    </div>
+</body>
+
+</html>
