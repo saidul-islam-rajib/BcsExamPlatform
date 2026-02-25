@@ -20,6 +20,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Register AI Service based on configuration
 var aiProvider = builder.Configuration["AIProvider"] ?? "Fallback";
 
+// Register HttpClient factory for all services
+builder.Services.AddHttpClient();
+
 if (aiProvider == "Fallback")
 {
     builder.Services.AddSingleton<BcsExamPlatform.Core.Services.IOpenAIService, BcsExamPlatform.Infrastructure.Services.FallbackAIService>();
@@ -40,8 +43,6 @@ else
 {
     builder.Services.AddHttpClient<BcsExamPlatform.Core.Services.IOpenAIService, BcsExamPlatform.Infrastructure.Services.OpenAIService>();
 }
-
-builder.Services.AddHttpClientFactory();
 
 // JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
