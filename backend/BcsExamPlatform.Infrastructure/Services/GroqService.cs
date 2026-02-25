@@ -90,27 +90,24 @@ public class GroqService : IOpenAIService
 
     private string BuildPrompt(string subject, string topic, string difficulty, int count, string language)
     {
-        return $@"Generate exactly {count} multiple-choice questions for BCS Preliminary Exam.
+        return $@"Create {count} multiple-choice quiz questions about {subject} - {topic}.
 
-Subject: {subject}
-Topic: {topic}  
-Difficulty: {difficulty}
+Difficulty level: {difficulty}
 Language: {language}
 
-IMPORTANT: Return ONLY a JSON object in this EXACT format with NO additional text, NO markdown, NO explanations:
-
+Return your response as a JSON object with this structure:
 {{
   ""questions"": [
     {{
-      ""questionText"": ""Your question here?"",
-      ""options"": [""Option A"", ""Option B"", ""Option C"", ""Option D""],
-      ""correctOptionIndex"": 1,
-      ""explanation"": ""Brief explanation""
+      ""questionText"": ""question here"",
+      ""options"": [""option 1"", ""option 2"", ""option 3"", ""option 4""],
+      ""correctOptionIndex"": 0,
+      ""explanation"": ""why this answer is correct""
     }}
   ]
 }}
 
-Generate {count} questions now:";
+Create {count} questions following this format exactly.";
     }
 
     private List<GeneratedQuestion> ParseQuestions(string jsonContent)
