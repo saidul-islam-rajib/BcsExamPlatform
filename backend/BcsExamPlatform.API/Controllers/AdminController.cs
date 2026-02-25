@@ -497,7 +497,7 @@ public class AdminController : ControllerBase
                     easyQuestions = sd.EasyQuestions,
                     intermediateQuestions = sd.IntermediateQuestions,
                     hardQuestions = sd.HardQuestions
-                }).ToList() ?? new List<object>()
+                }).ToList() ?? new List<dynamic>()
             };
 
             return Ok(examDto);
