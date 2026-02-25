@@ -60,10 +60,19 @@ public class AdminController : ControllerBase
     [HttpPost("questions/{questionId}/options")]
     public async Task<ActionResult> AddQuestionOptions(Guid questionId, List<CreateQuestionOptionDTO> options)
     {
-        var question = await _context.Questions.FindAsync(questionId);
+        var question = await _context.Questions
+            .Include(q => q.Options)
+            .FirstOrDefaultAsync(q => q.QuestionId == questionId);
+        
         if (question == null)
         {
             return NotFound(new { message = "Question not found" });
+        }
+
+        // Remove existing options first
+        if (question.Options.Any())
+        {
+            _context.QuestionOptions.RemoveRange(question.Options);
         }
 
         var questionOptions = options.Select((opt, index) => new QuestionOption
