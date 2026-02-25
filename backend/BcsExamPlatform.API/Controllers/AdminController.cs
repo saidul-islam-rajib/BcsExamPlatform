@@ -499,7 +499,7 @@ public class AdminController : ControllerBase
                 examFee = exam.ExamFee ?? 0,
                 allowGuestUsers = exam.AllowGuestUsers,
                 isPublished = exam.IsPublished,
-                subjectDistributions = subjectDistributions ?? new List<object>()
+                subjectDistributions = (object)(subjectDistributions ?? (object)new List<object>())
             };
 
             return Ok(examDto);
