@@ -1,5 +1,6 @@
 using BcsExamPlatform.API.DTOs;
 using BcsExamPlatform.Core.Entities;
+using BcsExamPlatform.Core.Enums;
 using BcsExamPlatform.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -35,7 +36,7 @@ public class ExamController : ControllerBase
             TotalQuestions = e.TotalQuestions,
             DurationMinutes = e.DurationMinutes,
             TotalMarks = e.TotalMarks,
-            LanguageMode = e.LanguageMode,
+            LanguageMode = e.LanguageMode.ToString(),
             IsPaid = e.IsPaid,
             ExamFee = e.ExamFee,
             AllowGuestUsers = e.AllowGuestUsers,
@@ -66,7 +67,7 @@ public class ExamController : ControllerBase
             TotalQuestions = exam.TotalQuestions,
             DurationMinutes = exam.DurationMinutes,
             TotalMarks = exam.TotalMarks,
-            LanguageMode = exam.LanguageMode,
+            LanguageMode = exam.LanguageMode.ToString(),
             IsPaid = exam.IsPaid,
             ExamFee = exam.ExamFee,
             AllowGuestUsers = exam.AllowGuestUsers,
@@ -190,7 +191,7 @@ public class ExamController : ControllerBase
             HasMathContent = eq.Question.HasMathContent,
             SubjectName = language == "English" ? eq.Question.Subject.SubjectNameEnglish : eq.Question.Subject.SubjectNameBangla,
             TopicName = language == "English" ? eq.Question.Topic.TopicNameEnglish : eq.Question.Topic.TopicNameBangla,
-            DifficultyLevel = eq.Question.DifficultyLevel,
+            DifficultyLevel = eq.Question.DifficultyLevel.ToString(),
             Marks = eq.Question.Marks,
             Options = eq.Question.Options.OrderBy(o => o.OptionOrder).Select(o => new QuestionOptionDTO
             {
@@ -447,7 +448,7 @@ public class ExamController : ControllerBase
                 Explanation = language == "English" ? eq.Question.Explanation?.ExplanationEnglish ?? "" : eq.Question.Explanation?.ExplanationBangla ?? "",
                 SubjectName = language == "English" ? eq.Question.Subject.SubjectNameEnglish : eq.Question.Subject.SubjectNameBangla,
                 TopicName = language == "English" ? eq.Question.Topic.TopicNameEnglish : eq.Question.Topic.TopicNameBangla,
-                DifficultyLevel = eq.Question.DifficultyLevel,
+                DifficultyLevel = eq.Question.DifficultyLevel.ToString(),
                 SourceReference = eq.Question.SourceReference
             });
         }

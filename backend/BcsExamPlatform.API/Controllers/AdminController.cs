@@ -755,12 +755,12 @@ public class AdminController : ControllerBase
                         topic.TopicNameEnglish,
                         "Easy",
                         distribution.EasyQuestions,
-                        exam.LanguageMode == "Bangla" ? "Bangla" : "English"
+                        exam.LanguageMode.ToString()
                     );
 
                     foreach (var genQ in easyQuestions)
                     {
-                        var question = await SaveGeneratedQuestion(genQ, distribution.SubjectId, topic.TopicId, "Easy", exam.LanguageMode);
+                        var question = await SaveGeneratedQuestion(genQ, distribution.SubjectId, topic.TopicId, DifficultyLevel.Easy, exam.LanguageMode);
                         examQuestions.Add(new ExamQuestion
                         {
                             ExamQuestionId = Guid.NewGuid(),
@@ -781,12 +781,12 @@ public class AdminController : ControllerBase
                         topic.TopicNameEnglish,
                         "Intermediate",
                         distribution.IntermediateQuestions,
-                        exam.LanguageMode == "Bangla" ? "Bangla" : "English"
+                        exam.LanguageMode.ToString()
                     );
 
                     foreach (var genQ in intermediateQuestions)
                     {
-                        var question = await SaveGeneratedQuestion(genQ, distribution.SubjectId, topic.TopicId, "Intermediate", exam.LanguageMode);
+                        var question = await SaveGeneratedQuestion(genQ, distribution.SubjectId, topic.TopicId, DifficultyLevel.Intermediate, exam.LanguageMode);
                         examQuestions.Add(new ExamQuestion
                         {
                             ExamQuestionId = Guid.NewGuid(),
@@ -807,12 +807,12 @@ public class AdminController : ControllerBase
                         topic.TopicNameEnglish,
                         "Hard",
                         distribution.HardQuestions,
-                        exam.LanguageMode == "Bangla" ? "Bangla" : "English"
+                        exam.LanguageMode.ToString()
                     );
 
                     foreach (var genQ in hardQuestions)
                     {
-                        var question = await SaveGeneratedQuestion(genQ, distribution.SubjectId, topic.TopicId, "Hard", exam.LanguageMode);
+                        var question = await SaveGeneratedQuestion(genQ, distribution.SubjectId, topic.TopicId, DifficultyLevel.Hard, exam.LanguageMode);
                         examQuestions.Add(new ExamQuestion
                         {
                             ExamQuestionId = Guid.NewGuid(),
@@ -860,21 +860,21 @@ public class AdminController : ControllerBase
         BcsExamPlatform.Core.Services.GeneratedQuestion genQ,
         Guid subjectId,
         Guid topicId,
-        string difficulty,
-        string languageMode)
+        DifficultyLevel difficulty,
+        LanguageMode languageMode)
     {
         var question = new Question
         {
             QuestionId = Guid.NewGuid(),
             SubjectId = subjectId,
             TopicId = topicId,
-            QuestionTextBangla = languageMode == "Bangla" ? genQ.QuestionText : "",
-            QuestionTextEnglish = languageMode == "English" || languageMode == "Bilingual" ? genQ.QuestionText : genQ.QuestionText,
+            QuestionTextBangla = languageMode == LanguageMode.Bangla ? genQ.QuestionText : "",
+            QuestionTextEnglish = languageMode == LanguageMode.English || languageMode == LanguageMode.Bilingual ? genQ.QuestionText : genQ.QuestionText,
             DifficultyLevel = difficulty,
             Marks = 1.00m,
-            SourceType = "AI Generated",
+            SourceType = SourceType.AIGenerated,
             IsAIGenerated = true,
-            IsApproved = true, // Auto-approve for exam generation
+            ApprovalStatus = ApprovalStatus.Approved, // Auto-approve for exam generation
             IsActive = true,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
@@ -885,8 +885,8 @@ public class AdminController : ControllerBase
         {
             OptionId = Guid.NewGuid(),
             QuestionId = question.QuestionId,
-            OptionTextBangla = languageMode == "Bangla" ? opt : "",
-            OptionTextEnglish = languageMode == "English" || languageMode == "Bilingual" ? opt : opt,
+            OptionTextBangla = languageMode == LanguageMode.Bangla ? opt : "",
+            OptionTextEnglish = languageMode == LanguageMode.English || languageMode == LanguageMode.Bilingual ? opt : opt,
             OptionOrder = index + 1,
             IsCorrect = index == genQ.CorrectOptionIndex,
             CreatedAt = DateTime.UtcNow
@@ -897,8 +897,8 @@ public class AdminController : ControllerBase
         {
             ExplanationId = Guid.NewGuid(),
             QuestionId = question.QuestionId,
-            ExplanationBangla = languageMode == "Bangla" ? genQ.Explanation : "",
-            ExplanationEnglish = languageMode == "English" || languageMode == "Bilingual" ? genQ.Explanation : genQ.Explanation,
+            ExplanationBangla = languageMode == LanguageMode.Bangla ? genQ.Explanation : "",
+            ExplanationEnglish = languageMode == LanguageMode.English || languageMode == LanguageMode.Bilingual ? genQ.Explanation : genQ.Explanation,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
@@ -1015,9 +1015,9 @@ public class AdminController : ControllerBase
                 QuestionTextBangla = dto.QuestionText,
                 DifficultyLevel = dto.DifficultyLevel,
                 Marks = 1.00m,
-                SourceType = "Manual",
+                SourceType = SourceType.Manual,
                 IsAIGenerated = false,
-                IsApproved = true,
+                ApprovalStatus = ApprovalStatus.Approved,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
             };
@@ -1298,7 +1298,7 @@ public class AdminController : ControllerBase
         // Add 50 Bangla questions
         for (int i = 1; i <= 50; i++)
         {
-            var difficulty = i <= 20 ? "Easy" : (i <= 40 ? "Intermediate" : "Hard");
+            var difficulty = i <= 20 ? DifficultyLevel.Easy : (i <= 40 ? DifficultyLevel.Intermediate : DifficultyLevel.Hard);
             var q = CreateSampleQuestion(banglaSubject.SubjectId, banglaGrammarTopic.TopicId, i, "Bangla", difficulty);
             questions.Add(q);
         }
@@ -1306,7 +1306,7 @@ public class AdminController : ControllerBase
         // Add 50 English questions
         for (int i = 1; i <= 50; i++)
         {
-            var difficulty = i <= 20 ? "Easy" : (i <= 40 ? "Intermediate" : "Hard");
+            var difficulty = i <= 20 ? DifficultyLevel.Easy : (i <= 40 ? DifficultyLevel.Intermediate : DifficultyLevel.Hard);
             var q = CreateSampleQuestion(englishSubject.SubjectId, englishGrammarTopic.TopicId, i, "English", difficulty);
             questions.Add(q);
         }
@@ -1314,7 +1314,7 @@ public class AdminController : ControllerBase
         // Add 100 Math questions
         for (int i = 1; i <= 100; i++)
         {
-            var difficulty = i <= 40 ? "Easy" : (i <= 80 ? "Intermediate" : "Hard");
+            var difficulty = i <= 40 ? DifficultyLevel.Easy : (i <= 80 ? DifficultyLevel.Intermediate : DifficultyLevel.Hard);
             var q = CreateSampleQuestion(mathSubject.SubjectId, arithmeticTopic.TopicId, i, "Math", difficulty);
             questions.Add(q);
         }
@@ -1323,7 +1323,7 @@ public class AdminController : ControllerBase
         await _context.SaveChangesAsync();
     }
 
-    private Question CreateSampleQuestion(Guid subjectId, Guid topicId, int number, string subject, string difficulty)
+    private Question CreateSampleQuestion(Guid subjectId, Guid topicId, int number, string subject, DifficultyLevel difficulty)
     {
         var question = new Question
         {
@@ -1334,8 +1334,8 @@ public class AdminController : ControllerBase
             QuestionTextEnglish = $"{subject} Question {number} - {difficulty}",
             DifficultyLevel = difficulty,
             Marks = 1.00m,
-            SourceType = "Sample",
-            IsApproved = true,
+            SourceType = SourceType.Sample,
+            ApprovalStatus = ApprovalStatus.Approved,
             IsActive = true,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
