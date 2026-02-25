@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Exam Questions - BCS Exam Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .back-link {
+            color: #007bff;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .actions {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .questions-list {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .question-number {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .question-text {
+            margin: 10px 0;
+            color: #333;
+        }
+
+        .question-meta {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .question-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .options-container {
+            margin-top: 10px;
+        }
+
+        .option-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .option-item input[type="text"] {
+            flex: 1;
+        }
+
+        .option-item input[type="radio"] {
+            width: auto;
+        }
+
+        .option-item button {
+            padding: 8px 12px;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 4px;
+            color: white;
+            z-index: 2000;
+            animation: slideIn 0.3s;
+        }
+
+        .toast.success {
+            background: #28a745;
+        }
+
+        .toast.error {
+            background: #dc3545;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+            }
+
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="exams.html" class="back-link">← Back to Exams</a>
+            <h1 id="examTitle">Manage Exam Questions</h1>
+            <p id="examInfo"></p>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="openAddModal()">+ Add Question</button>
+        </div>
+
+        <div class="questions-list">
+            <div id="questionsList" class="loading">Loading questions...</div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Question Modal -->
+    <div id="questionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Question</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="questionForm" onsubmit="saveQuestion(event)">
+                <input type="hidden" id="questionId">
+
+                <div class="form-group">
+                    <label>Subject *</label>
+                    <select id="subjectId" required>
+                        <option value="">Select Subject</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Question Text *</label>
+                    <textarea id="questionText" required placeholder="Enter your question here"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Options * (Select the correct answer)</label>
+                    <div class="options-container" id="optionsContainer">
+                        <div class="option-item">
+                            <input type="radio" name="correctOption" value="0" required>
+                            <input type="text" placeholder="Option 1" required>
+                        </div>
+                        <div class="option-item">
+                            <input type="radio" name="correctOption" value="1" required>
+                            <input type="text" placeholder="Option 2" required>
+                        </div>
+                        <div class="option-item">
+                            <input type="radio" name="correctOption" value="2" required>
+                            <input type="text" placeholder="Option 3" required>
+                        </div>
+                        <div class="option-item">
+                            <input type="radio" name="correctOption" value="3" required>
+                            <input type="text" placeholder="Option 4" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Explanation</label>
+                    <textarea id="explanation" placeholder="Explain why the answer is correct"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Difficulty Level *</label>
+                    <select id="difficultyLevel" required>
+                        <option value="Easy">Easy</option>
+                        <option value="Intermediate">Intermediate</option>
+                        <option value="Hard">Hard</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-success">Save Question</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:2781/api';
+        let examId = null;
+        let currentQuestionId = null;
+
+        // Get exam ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        examId = urlParams.get('examId');
+
+        if (!examId) {
+            showToast('No exam selected', 'error');
+            setTimeout(() => window.location.href = 'exams.html', 2000);
+        }
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadExamInfo();
+            loadSubjects();
+            loadQuestions();
+        });
+
+        async function loadExamInfo() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/exams/${examId}`);
+                const exam = await response.json();
+                document.getElementById('examTitle').textContent = `Manage Questions: ${exam.examNameEnglish}`;
+                document.getElementById('examInfo').textContent = `Total Questions: ${exam.totalQuestions} | Duration: ${exam.durationMinutes} minutes`;
+            } catch (error) {
+                console.error('Error loading exam info:', error);
+            }
+        }
+
+        async function loadSubjects() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/subjects`);
+                const subjects = await response.json();
+                const select = document.getElementById('subjectId');
+                subjects.forEach(subject => {
+                    const option = document.createElement('option');
+                    option.value = subject.subjectId;
+                    option.textContent = subject.subjectNameEnglish;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading subjects:', error);
+            }
+        }
+
+        async function loadQuestions() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/exams/${examId}/questions/manage`);
+                const questions = await response.json();
+
+                const container = document.getElementById('questionsList');
+
+                if (questions.length === 0) {
+                    container.innerHTML = '<div class="empty-state">No questions added yet. Click "Add Question" to get started.</div>';
+                    return;
+                }
+
+                container.innerHTML = questions.map(q => `
+                    <div class="question-item">
+                        <div class="question-header">
+                            <span class="question-number">Question ${q.questionNumber}</span>
+                            <div class="question-actions">
+                                <button class="btn btn-primary btn-sm" onclick="editQuestion('${q.questionId}')">Edit</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteQuestion('${q.questionId}')">Delete</button>
+                            </div>
+                        </div>
+                        <div class="question-text">${q.questionText}</div>
+                        <div class="question-meta">
+                            Subject: ${q.subjectName} | Difficulty: ${q.difficultyLevel} | Options: ${q.optionsCount}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading questions:', error);
+                document.getElementById('questionsList').innerHTML = '<div class="error">Error loading questions</div>';
+            }
+        }
+
+        function openAddModal() {
+            currentQuestionId = null;
+            document.getElementById('modalTitle').textContent = 'Add Question';
+            document.getElementById('questionForm').reset();
+            document.getElementById('questionModal').classList.add('active');
+        }
+
+        async function editQuestion(questionId) {
+            // For now, just show the modal - full edit functionality would require fetching question details
+            showToast('Edit functionality coming soon', 'error');
+        }
+
+        function closeModal() {
+            document.getElementById('questionModal').classList.remove('active');
+        }
+
+        async function saveQuestion(event) {
+            event.preventDefault();
+
+            const options = [];
+            const optionInputs = document.querySelectorAll('#optionsContainer input[type="text"]');
+            optionInputs.forEach(input => options.push(input.value));
+
+            const correctOptionIndex = parseInt(document.querySelector('input[name="correctOption"]:checked').value);
+
+            const data = {
+                examId: examId,
+                subjectId: document.getElementById('subjectId').value,
+                questionText: document.getElementById('questionText').value,
+                options: options,
+                correctOptionIndex: correctOptionIndex,
+                explanation: document.getElementById('explanation').value,
+                difficultyLevel: document.getElementById('difficultyLevel').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/exams/${examId}/questions/manual`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    showToast('Question added successfully', 'success');
+                    closeModal();
+                    loadQuestions();
+                } else {
+                    const error = await response.json();
+                    showToast(error.message || 'Error adding question', 'error');
+                }
+            } catch (error) {
+                console.error('Error saving question:', error);
+                showToast('Error saving question', 'error');
+            }
+        }
+
+        async function deleteQuestion(questionId) {
+            if (!confirm('Are you sure you want to delete this question?')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/exams/${examId}/questions/${questionId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showToast('Question deleted successfully', 'success');
+                    loadQuestions();
+                } else {
+                    const error = await response.json();
+                    showToast(error.message || 'Error deleting question', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting question:', error);
+                showToast('Error deleting question', 'error');
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    </script>
+</body>
+
+</html>

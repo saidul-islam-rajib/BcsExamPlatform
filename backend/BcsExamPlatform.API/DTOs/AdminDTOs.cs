@@ -149,3 +149,34 @@ public class GenerateAIQuestionsDTO
     public string Language { get; set; } = "English";
     public bool AutoApprove { get; set; } = true;
 }
+
+// Manual Question Management for Exams
+public class AddManualQuestionDTO
+{
+    public Guid ExamId { get; set; }
+    public Guid SubjectId { get; set; }
+    public string QuestionText { get; set; } = string.Empty;
+    public List<string> Options { get; set; } = new();
+    public int CorrectOptionIndex { get; set; }
+    public string Explanation { get; set; } = string.Empty;
+    public string DifficultyLevel { get; set; } = "Easy";
+}
+
+public class UpdateManualQuestionDTO
+{
+    public string QuestionText { get; set; } = string.Empty;
+    public List<string> Options { get; set; } = new();
+    public int CorrectOptionIndex { get; set; }
+    public string Explanation { get; set; } = string.Empty;
+    public string DifficultyLevel { get; set; } = "Easy";
+}
+
+public class ExamQuestionListDTO
+{
+    public Guid QuestionId { get; set; }
+    public string QuestionText { get; set; } = string.Empty;
+    public string SubjectName { get; set; } = string.Empty;
+    public string DifficultyLevel { get; set; } = string.Empty;
+    public int OptionsCount { get; set; }
+    public int QuestionNumber { get; set; }
+}

@@ -628,6 +628,7 @@
                         <td onclick="showExamDetails('${exam.examId}')"><span class="badge badge-${statusClass}">${exam.isPublished ? 'Published' : 'Draft'}</span></td>
                         <td>
                             <div class="actions-cell">
+                                <button class="btn btn-small" onclick="event.stopPropagation(); window.location.href='manage-questions.html?examId=${exam.examId}'" style="background: #6c757d; color: white;">📝 Manage Questions</button>
                                 <button class="btn btn-small btn-success" onclick="event.stopPropagation(); checkAndGenerateQuestions('${exam.examId}', ${exam.totalQuestions}, this)">Generate Questions</button>
                                 <button class="btn btn-small" onclick="event.stopPropagation(); generateAIQuestionsForExam('${exam.examId}', this)" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">🤖 Generate AI Questions</button>
                                 ${exam.isPublished ? `

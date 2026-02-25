@@ -944,6 +944,221 @@ public class AdminController : ControllerBase
         }
     }
 
+    // Manual Question Management for Exams
+    [HttpPost("exams/{examId}/questions/manual")]
+    public async Task<ActionResult> AddManualQuestionToExam(Guid examId, [FromBody] AddManualQuestionDTO dto)
+    {
+        try
+        {
+            var exam = await _context.Exams.FindAsync(examId);
+            if (exam == null)
+                return NotFound(new { message = "Exam not found" });
+
+            // Create question
+            var question = new Question
+            {
+                QuestionId = Guid.NewGuid(),
+                SubjectId = dto.SubjectId,
+                TopicId = Guid.Empty, // Will be set if topic is provided
+                QuestionTextEnglish = dto.QuestionText,
+                QuestionTextBangla = dto.QuestionText,
+                DifficultyLevel = dto.DifficultyLevel,
+                Marks = 1.00m,
+                SourceType = "Manual",
+                IsAIGenerated = false,
+                IsApproved = true,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Questions.Add(question);
+
+            // Add options
+            for (int i = 0; i < dto.Options.Count; i++)
+            {
+                var option = new QuestionOption
+                {
+                    OptionId = Guid.NewGuid(),
+                    QuestionId = question.QuestionId,
+                    OptionTextEnglish = dto.Options[i],
+                    OptionTextBangla = dto.Options[i],
+                    OptionOrder = i + 1,
+                    IsCorrect = i == dto.CorrectOptionIndex
+                };
+                _context.QuestionOptions.Add(option);
+            }
+
+            // Add explanation
+            if (!string.IsNullOrEmpty(dto.Explanation))
+            {
+                var explanation = new QuestionExplanation
+                {
+                    ExplanationId = Guid.NewGuid(),
+                    QuestionId = question.QuestionId,
+                    ExplanationEnglish = dto.Explanation,
+                    ExplanationBangla = dto.Explanation
+                };
+                _context.QuestionExplanations.Add(explanation);
+            }
+
+            // Add to exam
+            var questionCount = await _context.ExamQuestions.CountAsync(eq => eq.ExamId == examId);
+            var examQuestion = new ExamQuestion
+            {
+                ExamQuestionId = Guid.NewGuid(),
+                ExamId = examId,
+                QuestionId = question.QuestionId,
+                QuestionNumber = questionCount + 1,
+                DisplayOrder = questionCount + 1
+            };
+            _context.ExamQuestions.Add(examQuestion);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { 
+                message = "Question added successfully",
+                questionId = question.QuestionId
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = $"Error adding question: {ex.Message}" });
+        }
+    }
+
+    [HttpGet("exams/{examId}/questions/manage")]
+    public async Task<ActionResult> GetExamQuestionsForManagement(Guid examId)
+    {
+        try
+        {
+            var exam = await _context.Exams.FindAsync(examId);
+            if (exam == null)
+                return NotFound(new { message = "Exam not found" });
+
+            var questions = await _context.ExamQuestions
+                .Where(eq => eq.ExamId == examId)
+                .Include(eq => eq.Question)
+                    .ThenInclude(q => q.Subject)
+                .Include(eq => eq.Question)
+                    .ThenInclude(q => q.Options)
+                .OrderBy(eq => eq.QuestionNumber)
+                .Select(eq => new ExamQuestionListDTO
+                {
+                    QuestionId = eq.QuestionId,
+                    QuestionText = eq.Question.QuestionTextEnglish,
+                    SubjectName = eq.Question.Subject.SubjectNameEnglish,
+                    DifficultyLevel = eq.Question.DifficultyLevel,
+                    OptionsCount = eq.Question.Options.Count,
+                    QuestionNumber = eq.QuestionNumber
+                })
+                .ToListAsync();
+
+            return Ok(questions);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = $"Error fetching questions: {ex.Message}" });
+        }
+    }
+
+    [HttpPut("exams/{examId}/questions/{questionId}")]
+    public async Task<ActionResult> UpdateExamQuestion(Guid examId, Guid questionId, [FromBody] UpdateManualQuestionDTO dto)
+    {
+        try
+        {
+            var question = await _context.Questions
+                .Include(q => q.Options)
+                .Include(q => q.Explanation)
+                .FirstOrDefaultAsync(q => q.QuestionId == questionId);
+
+            if (question == null)
+                return NotFound(new { message = "Question not found" });
+
+            // Update question
+            question.QuestionTextEnglish = dto.QuestionText;
+            question.QuestionTextBangla = dto.QuestionText;
+            question.DifficultyLevel = dto.DifficultyLevel;
+
+            // Update options
+            _context.QuestionOptions.RemoveRange(question.Options);
+            for (int i = 0; i < dto.Options.Count; i++)
+            {
+                var option = new QuestionOption
+                {
+                    OptionId = Guid.NewGuid(),
+                    QuestionId = question.QuestionId,
+                    OptionTextEnglish = dto.Options[i],
+                    OptionTextBangla = dto.Options[i],
+                    OptionOrder = i + 1,
+                    IsCorrect = i == dto.CorrectOptionIndex
+                };
+                _context.QuestionOptions.Add(option);
+            }
+
+            // Update explanation
+            if (question.Explanation != null)
+            {
+                question.Explanation.ExplanationEnglish = dto.Explanation;
+                question.Explanation.ExplanationBangla = dto.Explanation;
+            }
+            else if (!string.IsNullOrEmpty(dto.Explanation))
+            {
+                var explanation = new QuestionExplanation
+                {
+                    ExplanationId = Guid.NewGuid(),
+                    QuestionId = question.QuestionId,
+                    ExplanationEnglish = dto.Explanation,
+                    ExplanationBangla = dto.Explanation
+                };
+                _context.QuestionExplanations.Add(explanation);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Question updated successfully" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = $"Error updating question: {ex.Message}" });
+        }
+    }
+
+    [HttpDelete("exams/{examId}/questions/{questionId}")]
+    public async Task<ActionResult> DeleteExamQuestion(Guid examId, Guid questionId)
+    {
+        try
+        {
+            var examQuestion = await _context.ExamQuestions
+                .FirstOrDefaultAsync(eq => eq.ExamId == examId && eq.QuestionId == questionId);
+
+            if (examQuestion == null)
+                return NotFound(new { message = "Question not found in exam" });
+
+            _context.ExamQuestions.Remove(examQuestion);
+            await _context.SaveChangesAsync();
+
+            // Renumber remaining questions
+            var remainingQuestions = await _context.ExamQuestions
+                .Where(eq => eq.ExamId == examId)
+                .OrderBy(eq => eq.QuestionNumber)
+                .ToListAsync();
+
+            for (int i = 0; i < remainingQuestions.Count; i++)
+            {
+                remainingQuestions[i].QuestionNumber = i + 1;
+                remainingQuestions[i].DisplayOrder = i + 1;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Question removed from exam successfully" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = $"Error deleting question: {ex.Message}" });
+        }
+    }
+
     // Seed Sample Data
     [HttpPost("seed-sample-data")]
     public async Task<ActionResult> SeedSampleData([FromQuery] bool force = false)
