@@ -434,36 +434,62 @@
                 if (!response.ok) throw new Error('Question not found');
 
                 const question = await response.json();
+                console.log('Loaded question data:', question);
 
                 // Fill form with question data
-                document.getElementById('questionId').value = question.questionId;
-                document.getElementById('subjectId').value = question.subjectId;
+                document.getElementById('questionId').value = question.questionId || '';
+                document.getElementById('subjectId').value = question.subjectId || '';
 
                 // Load topics for the selected subject
-                await loadTopics(question.subjectId);
-                document.getElementById('topicId').value = question.topicId;
+                if (question.subjectId) {
+                    await loadTopics(question.subjectId);
+                    // Wait a bit for topics to load
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    document.getElementById('topicId').value = question.topicId || '';
+                }
 
-                document.getElementById('difficultyLevel').value = question.difficultyLevel;
-                document.getElementById('marks').value = question.marks;
-                document.getElementById('questionTextEnglish').value = question.questionTextEnglish;
-                document.getElementById('questionTextBangla').value = question.questionTextBangla;
+                document.getElementById('difficultyLevel').value = question.difficultyLevel || 'Easy';
+                document.getElementById('marks').value = question.marks || 1;
+                document.getElementById('questionTextEnglish').value = question.questionTextEnglish || '';
+                document.getElementById('questionTextBangla').value = question.questionTextBangla || '';
 
-                // Fill options
-                question.options.forEach((option, index) => {
-                    document.getElementById(`option${index}`).value = option.optionTextEnglish;
-                    if (option.isCorrect) {
-                        document.getElementById(`correct${index}`).checked = true;
+                // Fill options - sort by optionOrder first
+                if (question.options && Array.isArray(question.options) && question.options.length > 0) {
+                    console.log('Processing options:', question.options);
+                    const sortedOptions = [...question.options].sort((a, b) => (a.optionOrder || 0) - (b.optionOrder || 0));
+
+                    // Fill up to 4 options
+                    for (let i = 0; i < 4; i++) {
+                        const optionInput = document.getElementById(`option${i}`);
+                        const correctRadio = document.getElementById(`correct${i}`);
+
+                        if (optionInput && sortedOptions[i]) {
+                            optionInput.value = sortedOptions[i].optionTextEnglish || sortedOptions[i].optionTextBangla || '';
+                        }
+
+                        if (correctRadio && sortedOptions[i] && sortedOptions[i].isCorrect) {
+                            correctRadio.checked = true;
+                        }
                     }
-                });
+                } else {
+                    console.warn('No options found in question data');
+                }
 
                 // Fill explanations
-                document.getElementById('explanationEnglish').value = question.explanationEnglish || '';
-                document.getElementById('explanationBangla').value = question.explanationBangla || '';
+                const explanationEnglishEl = document.getElementById('explanationEnglish');
+                const explanationBanglaEl = document.getElementById('explanationBangla');
+
+                if (explanationEnglishEl) {
+                    explanationEnglishEl.value = question.explanationEnglish || '';
+                }
+                if (explanationBanglaEl) {
+                    explanationBanglaEl.value = question.explanationBangla || '';
+                }
 
                 showToast('Question loaded successfully', 'success');
             } catch (error) {
                 console.error('Error loading question:', error);
-                showToast('Error loading question data', 'error');
+                showToast('Error loading question data: ' + error.message, 'error');
                 setTimeout(() => window.location.href = 'questions.html', 2000);
             }
         }
