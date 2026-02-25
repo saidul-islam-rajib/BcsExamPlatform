@@ -475,6 +475,16 @@ public class AdminController : ControllerBase
                 return NotFound(new { message = "Exam not found" });
             }
 
+            var subjectDistributions = exam.SubjectDistributions?.Select(sd => new
+            {
+                subjectId = sd.SubjectId,
+                subjectName = sd.Subject?.SubjectNameEnglish ?? "Unknown",
+                totalQuestions = sd.TotalQuestions,
+                easyQuestions = sd.EasyQuestions,
+                intermediateQuestions = sd.IntermediateQuestions,
+                hardQuestions = sd.HardQuestions
+            }).ToList();
+
             var examDto = new
             {
                 examId = exam.ExamId,
@@ -489,15 +499,7 @@ public class AdminController : ControllerBase
                 examFee = exam.ExamFee ?? 0,
                 allowGuestUsers = exam.AllowGuestUsers,
                 isPublished = exam.IsPublished,
-                subjectDistributions = exam.SubjectDistributions?.Select(sd => new
-                {
-                    subjectId = sd.SubjectId,
-                    subjectName = sd.Subject?.SubjectNameEnglish ?? "Unknown",
-                    totalQuestions = sd.TotalQuestions,
-                    easyQuestions = sd.EasyQuestions,
-                    intermediateQuestions = sd.IntermediateQuestions,
-                    hardQuestions = sd.HardQuestions
-                }).ToList() ?? new List<dynamic>()
+                subjectDistributions = subjectDistributions ?? new List<object>()
             };
 
             return Ok(examDto);
